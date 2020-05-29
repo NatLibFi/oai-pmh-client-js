@@ -1,0 +1,101 @@
+{
+	"name": "@natlibfi/oai-pmh-client",
+	"description": "OAI-PMH Javascript client library",
+	"author": {
+		"name": "The National Library of Finland"
+	},
+	"keywords": [],
+	"homepage": "https://github.com/natlibfi/oai-pmh-client-js",
+	"bugs": {
+		"url": "https://github.com/natlibfi/oai-pmh-client-js/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:natlibfi/oai-pmh-client-js.git"
+	},
+	"license": "LGPL-3.0+",
+	"version": "1.0.0-alpha.1",
+	"main": "./dist/index.js",
+	"engines": {
+		"node": ">=12"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"start": "node dist/index.js",
+		"lint": "eslint src",
+		"lint:dev": "eslint --fix src",
+		"test:base": "cross-env NODE_ENV=test nyc mocha --require @babel/register",
+		"test": "npm run lint && npm run test:base -- src/*.spec.js && npm run coverage",
+		"test:dev": "npm run lint:dev && npm run test:base -- src/*.spec.js && npm run coverage",
+		"coverage": "nyc check-coverage --per-file",
+		"build": "babel src --source-maps --copy-files --delete-dir-on-start --out-dir=dist",
+		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src --exec 'npm run test:dev'"
+	},
+	"dependencies": {
+		"debug": "^4.1.1",
+		"http-status": "^1.4.2",
+		"node-fetch": "^2.6.0",
+		"xml2js": "^0.4.23"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.10.1",
+		"@babel/core": "^7.10.1",
+		"@babel/node": "^7.10.1",
+		"@babel/preset-env": "^7.10.1",
+		"@babel/register": "^7.10.1",
+		"@natlibfi/eslint-config-melinda-backend": "^1.0.3",
+		"@natlibfi/fixura": "^1.0.0",
+		"babel-eslint": "^10.1.0",
+		"babel-plugin-istanbul": "^6.0.0",
+		"babel-plugin-rewire": "^1.2.0",
+		"chai": "^4.2.0",
+		"chai-as-promised": "^7.1.1",
+		"cross-env": "^7.0.2",
+		"eslint": "^7.0.0",
+		"mocha": "^7.1.2",
+		"nyc": "^15.0.1"
+	},
+	"eslintConfig": {
+		"extends": "@natlibfi/melinda-backend"
+	},
+	"babel": {
+		"presets": [
+			[
+				"@babel/preset-env",
+				{
+					"targets": {
+						"node": "12"
+					}
+				}
+			]
+		],
+		"env": {
+			"test": {
+				"plugins": [
+					"istanbul",
+					"rewire"
+				]
+			}
+		}
+	},
+	"nyc": {
+		"exclude": [
+			"*/*.spec.js"
+		],
+		"reporter": [
+			"lcov",
+			"html"
+		],
+		"require": [
+			"@babel/register"
+		],
+		"sourceMap": false,
+		"instrument": false,
+		"lines": 80,
+		"statements": 80,
+		"functions": 80,
+		"branches": 80
+	}
+}

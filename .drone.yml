@@ -1,0 +1,82 @@
+kind: pipeline
+type: docker
+name: Default
+
+trigger:
+  event:
+    - push
+
+environment:
+  NPM_CONFIG_IGNORE_SCRIPTS: true
+  NODE_VERSION: 12
+
+steps:
+
+  - name: audit
+    image: node:${NODE_VERSION}
+    commands:
+      - npm audit --package-lock-only --audit-level=moderate
+
+  - name: install
+    image: node:${NODE_VERSION}
+    commands:
+      - npm ci
+
+  - name: test
+    image: node:${NODE_VERSION}
+    commands:
+      - npm test
+
+  - name: check-coverage
+    image: node:${NODE_VERSION}
+    commands:
+      - npm run check-coverage
+
+  - name: build
+    image: node:${NODE_VERSION}
+    commands:
+      - npm run build
+      - npm ci --production
+
+  - name: static-security-scan
+    image: quay.io/natlibfi/nodejsscan
+    commands:
+      - python /usr/src/app/cli.py -d dist
+
+---
+kind: pipeline
+type: docker
+name: Update dependencies
+
+trigger:
+  event:
+    - custom
+  branch:
+    - next
+
+steps:
+
+  - name: update-deps
+    image: node:${NODE_VERSION}
+    commands:
+      - npm install --package-lock-only
+
+  - name: commit-and-push
+    image: quay.io/natlibfi/drone-plugin-git-push
+    settings:
+      remote: ${DRONE_GIT_SSH_URL}
+      branch: next
+      commit: true
+      commit_message: 'Update dependencies'
+      author_name: natlibfi-melinda-automation
+      author_email: 65649125+natlibfi-melinda-automation@users.noreply.github.com
+      ssh_key:
+        from_secret: github_deploy_key
+--
+kind: secret
+name: github_deploy_key
+data:
+---
+kind: secret
+name: npm_token
+data: 
