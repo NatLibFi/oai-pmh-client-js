@@ -1,0 +1,22 @@
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+        <request verb="ListRecords" metadataPrefix="marc21">http://foo.bar</request>
+        <responseDate>2020-06-01T12:08:07.821Z</responseDate>
+        <ListRecords>
+                <record>
+                        <header status="deleted">
+                                <identifier>oai:foo.bar/1</identifier>
+                                <datestamp>2019-10-10T03:59:09.000Z</datestamp>
+                        </header>
+                <record>
+                <record>
+                        <header>
+                                <identifier>oai:foo.bar/1</identifier>
+                                <datestamp>2019-10-10T03:59:09.000Z</datestamp>
+                        </header>
+                        <metadata>
+                          <foo>bar</foo>
+                        </metadata>
+                <record>                
+                <resumptionToken expirationDate="2020-06-01T14:08:21.116Z" cursor="0">nZBeRnMIEoI41zykucwJ9UUEN9YDgqPpJwxoOi2EHjI+oIpi9m6HJaRyB2PcLHod6gIx3ikWNVfSo/KORJD4UA==</resumptionToken>
+        </ListRecords>
+</OAI-PMH>                        

@@ -1,0 +1,7 @@
+{
+  "description": "Should retrieve all records",
+  "method": "listRecords",
+  "parameters": {
+    "metadataPrefix": "foo"
+  }  
+}

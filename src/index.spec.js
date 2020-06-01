@@ -26,9 +26,67 @@
 *
 */
 
+import createClient from '.';
+import {expect} from 'chai';
+import {READERS} from '@natlibfi/fixura';
+import nock from 'nock';
 import generateTests from './generate-tests';
-generateTests(callback, __dirname, '..', 'test-fixtures'); // eslint-disable-line no-console
+generateTests({
+  callback,
+  useMetadataFile: true,
+  path: [__dirname, '..', 'test-fixtures'],
+  afterEach: () => nock.restore(),
+  fixuraOptions: {
+    reader: READERS.JSON,
+    failWhenNotFound: false
+  }
+});
 
-function callback({getFixture}) {
-  console.log(getFixture(['input.json'])); // eslint-disable-line no-console
+function callback({getFixture, method, expectedToken, parameters}) {
+  const baseUrl = 'http://foo.bar';
+  const expectedRecords = [];
+  const serverResponses = [getFixture('response.xml')];
+
+  generateNockInvocation();
+
+  let recordCount = 0; // eslint-disable-line functional/no-let
+  const client = createClient({url: baseUrl});
+
+  return new Promise((resolve, reject) => {
+    client[method](parameters)
+      .on('error', reject)
+      .on('record', record => {
+        try {
+          expect(expectedRecords[recordCount]).to.eql(record);
+          recordCount++; // eslint-disable-line no-plusplus
+        } catch (err) {
+          reject(err);
+        }
+      })
+      .on('end', resumptionToken => {
+        try {
+          if (expectedToken) {
+            expect(resumptionToken).to.equal(resumptionToken);
+            return resolve();
+          }
+
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      });
+  });
+
+  function generateNockInvocation() {
+    const nockInstance = nock(baseUrl);
+
+    if (serverResponses) {
+      return serverResponses.forEach((response, index) => {
+        const parameters = index === 0 ? '?verb=ListRecords&metadataPrefix=foo' : `?verb=ListRecords&resumptionToken=${index}`;
+        nockInstance
+          .get(parameters)
+          .reply(response);
+      });
+    }
+  }
 }

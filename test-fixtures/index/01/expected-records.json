@@ -1,0 +1,38 @@
+[
+  {
+    "header": [
+      {
+        "$": {
+          "status": "deleted"
+        },
+        "identifier": [
+          "oai:foo.bar/1000"
+        ],
+        "datestamp": [
+          "2019-07-04T08:26:05.000Z"
+        ]
+      }
+    ]
+  },
+  {
+    "header": [
+      {
+        "identifier": [
+          "oai:foo.bar/1001"
+        ],
+        "datestamp": [
+          "2007-12-31T22:00:00.000Z"
+        ]
+      }
+    ],
+    "metadata": [
+      {
+        "record": [
+          {
+            "foo": "bar"
+          }
+        ]
+      }
+    ]
+  }
+]
