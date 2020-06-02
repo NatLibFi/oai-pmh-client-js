@@ -7,12 +7,12 @@ export default ({
   path,
   fixuraOptions = {},
   useMetadataFile = false,
-  afterEach: afterEachCallback
+  mocha
 }) => {
   const rootDir = joinPath(...path);
   readdirSync(rootDir).forEach(dir => {
     describe(dir, () => {
-      afterEach(afterEachCallback || (() => {})); // eslint-disable-line no-empty-function
+      setupMochaCallbacks();
 
       readdirSync(joinPath(rootDir, dir)).forEach(subDir => {
         const fixtureInterface = fixtureFactory({...fixuraOptions, root: [rootDir, dir, subDir]});
@@ -28,6 +28,18 @@ export default ({
 
         it(subDir, () => callback(fixtureInterface));
       });
+
+      function setupMochaCallbacks() {
+        const afterCallback = mocha.after || (() => {});// eslint-disable-line no-empty-function
+        const beforeCallback = mocha.before || (() => {});// eslint-disable-line no-empty-function
+        const beforeEachCallback = mocha.beforeEach || (() => {});// eslint-disable-line no-empty-function
+        const afterEachCallback = mocha.afterEach || (() => {});// eslint-disable-line no-empty-function
+
+        after(afterCallback);
+        before(beforeCallback);
+        beforeEach(beforeEachCallback);
+        afterEach(afterEachCallback);
+      }
     });
   });
 };

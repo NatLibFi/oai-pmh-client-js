@@ -26,7 +26,9 @@
 *
 */
 
+/* eslint-disable no-unused-vars */
 import fetch from 'node-fetch';
+import moment from 'moment';
 import httpStatus from 'http-status';
 import {EventEmitter} from 'events';
 import {Parser as XMLParser, Builder as XMLBuilder} from 'xml2js';
@@ -43,15 +45,15 @@ export const errors = {
   noSetHierarchy: 'noSetHierarchy'
 };
 
-export const formats = {
+export const metadataFormats = {
   object: 'object',
   string: 'string'
 };
 
 export class OaiPmhError extends Error {
-  constructor(error, ...args) {
+  constructor(code, ...args) {
     super(args);
-    this.error = error; // eslint-disable-line functional/no-this-expression
+    this.code = code; // eslint-disable-line functional/no-this-expression
   }
 }
 
@@ -59,11 +61,11 @@ export default ({
   url: baseUrl,
   metadataPrefix: metadataPrefixDefault,
   set: setDefault,
-  format = formats.object,
+  metadataFormat = metadataFormats.object,
   retrieveAll = true
 }) => {
   const debug = createDebugLogger('@natlibfi/oai-pmh-client');
-  const formatRecord = createFormatter();
+  const formatMetadata = createFormatter();
 
   class Emitter extends EventEmitter {
     constructor(...args) {
@@ -81,16 +83,17 @@ export default ({
     iterate(resumptionToken);
     return emitter;
 
-    function iterate(resumptionToken) {
+    async function iterate(resumptionToken) {
       try {
         if (resumptionToken) {
           debug(resumptionToken);
-          return processRequest({verb: 'ListRecords', resumptionToken});
+          await processRequest({verb: 'ListRecords', resumptionToken});
+          return;
         }
 
-        return processRequest({verb: 'ListRecords', metadataPrefix, set});
+        await processRequest({verb: 'ListRecords', metadataPrefix, set});
       } catch (err) {
-        emitter.emit('error', err);
+        return emitter.emit('error', err);
       }
 
       async function processRequest(parameters) {
@@ -109,14 +112,24 @@ export default ({
 
           if (resumptionToken) {
             if (retrieveAll) {
-              return iterate(resumptionToken);
+              return iterate(resumptionToken._);
             }
 
-            return emitter.emit('end', resumptionToken);
+            return emitter.emit('end', formatResumptionToken(resumptionToken));
           }
+
+          return emitter.emit('end');
         }
 
         throw new Error(`Unexpected response ${response.status}: ${await response.text()}`);
+
+        function formatResumptionToken({_, $: {expirationDate, cursor}}) {
+          return {
+            token: _,
+            expirationDate: moment(expirationDate),
+            cursor: Number(cursor)
+          };
+        }
 
         async function parsePayload(response) {
           const payload = await parse();
@@ -132,7 +145,7 @@ export default ({
             }
           } = payload;
 
-          return {records, resumptionToken: resumptionToken?.[0]._};
+          return {records, resumptionToken: resumptionToken?.[0]};
 
           async function parse() {
             const payload = await response.text();
@@ -152,9 +165,32 @@ export default ({
           const [record] = records;
 
           if (record) {
-            const formatted = formatRecord(record);
-            emitter.emit('record', formatted);
+            const formatted = formatRecord();
+
+            if (formatted.header.status === 'deleted') {
+              emitter.emit('record', formatted);
+              return emitRecords(records.slice(1));
+            }
+
+            emitter.emit('record', {...formatted, metadata: formatMetadata(record.metadata)});
             return emitRecords(records.slice(1));
+          }
+
+          function formatRecord() {
+            const obj = {
+              identifier: record.header[0].identifier[0],
+              datestamp: moment(record.header[0].datestamp[0])
+            };
+
+            if (record.header[0]?.$?.status) {
+              return {
+                header: {
+                  ...obj, status: record.header[0].$.status
+                }
+              };
+            }
+
+            return {header: obj};
           }
         }
 
@@ -171,11 +207,11 @@ export default ({
   }
 
   function createFormatter() {
-    if (format === formats.object) {
-      return record => record;
+    if (metadataFormat === metadataFormats.object) {
+      return metadata => metadata;
     }
 
-    if (format === formats.string) {
+    if (metadataFormat === metadataFormats.string) {
       const builder = new XMLBuilder({
         xmldec: {
           version: '1.0',
@@ -188,9 +224,9 @@ export default ({
         }
       });
 
-      return record => builder.buildObject({record});
+      return metadata => builder.buildObject(metadata);
     }
 
-    throw new Error(`Invalid format: ${format}`);
+    throw new Error(`Invalid metadata format: ${metadataFormat}`);
   }
 };

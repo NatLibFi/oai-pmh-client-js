@@ -5,18 +5,18 @@
                 <record>
                         <header status="deleted">
                                 <identifier>oai:foo.bar/1</identifier>
-                                <datestamp>2019-10-10T03:59:09.000Z</datestamp>
+                                <datestamp>2019-07-04T08:26:05.000Z</datestamp>
                         </header>
-                <record>
+                </record>
                 <record>
                         <header>
-                                <identifier>oai:foo.bar/1</identifier>
-                                <datestamp>2019-10-10T03:59:09.000Z</datestamp>
+                                <identifier>oai:foo.bar/2</identifier>
+                                <datestamp>2007-12-31T22:00:00.000Z</datestamp>
                         </header>
                         <metadata>
                           <foo>bar</foo>
                         </metadata>
-                <record>                
-                <resumptionToken expirationDate="2020-06-01T14:08:21.116Z" cursor="0">nZBeRnMIEoI41zykucwJ9UUEN9YDgqPpJwxoOi2EHjI+oIpi9m6HJaRyB2PcLHod6gIx3ikWNVfSo/KORJD4UA==</resumptionToken>
+                </record>                
+                <resumptionToken expirationDate="2020-06-01T14:08:21.116Z" cursor="0">foobar</resumptionToken>
         </ListRecords>
-</OAI-PMH>                        
+</OAI-PMH>

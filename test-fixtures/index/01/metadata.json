@@ -1,7 +1,19 @@
 {
   "description": "Should retrieve all records",
-  "method": "listRecords",
-  "parameters": {
+  "defaultParameters": {
     "metadataPrefix": "foo"
-  }  
+  },
+  "method": {
+    "name": "listRecords"
+  },
+  "requests": [
+    {
+      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "status": 200
+    },
+    {
+      "url": "/?verb=ListRecords&resumptionToken=foobar",
+      "status": 200
+    }        
+  ]  
 }

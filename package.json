@@ -31,11 +31,12 @@
 		"test:dev": "npm run lint:dev && npm run test:base -- src/*.spec.js && npm run coverage",
 		"coverage": "nyc check-coverage --per-file",
 		"build": "babel src --source-maps --copy-files --delete-dir-on-start --out-dir=dist",
-		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src --exec 'npm run test:dev'"
+		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src -w test-fixtures --exec 'npm run test:dev'"
 	},
 	"dependencies": {
 		"debug": "^4.1.1",
 		"http-status": "^1.4.2",
+		"moment": "^2.26.0",
 		"node-fetch": "^2.6.0",
 		"xml2js": "^0.4.23"
 	},
@@ -46,15 +47,15 @@
 		"@babel/preset-env": "^7.10.1",
 		"@babel/register": "^7.10.1",
 		"@natlibfi/eslint-config-melinda-backend": "^1.0.3",
-		"@natlibfi/fixura": "^2.0.0",
+		"@natlibfi/fixura": "file:../fixura-js",
 		"babel-eslint": "^10.1.0",
 		"babel-plugin-istanbul": "^6.0.0",
-		"babel-plugin-rewire": "^1.2.0",
 		"chai": "^4.2.0",
 		"cross-env": "^7.0.2",
 		"eslint": "^7.0.0",
 		"mocha": "^7.1.2",
 		"nock": "^12.0.3",
+		"nodemon": "^2.0.4",
 		"nyc": "^15.0.1"
 	},
 	"eslintConfig": {
@@ -74,8 +75,7 @@
 		"env": {
 			"test": {
 				"plugins": [
-					"istanbul",
-					"rewire"
+					"istanbul"
 				]
 			}
 		}

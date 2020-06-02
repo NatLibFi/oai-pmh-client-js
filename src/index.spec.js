@@ -26,66 +26,113 @@
 *
 */
 
-import createClient from '.';
+import createClient, {OaiPmhError} from '.';
 import {expect} from 'chai';
-import {READERS} from '@natlibfi/fixura';
 import nock from 'nock';
+import {READERS} from '@natlibfi/fixura';
 import generateTests from './generate-tests';
+
 generateTests({
   callback,
   useMetadataFile: true,
   path: [__dirname, '..', 'test-fixtures'],
-  afterEach: () => nock.restore(),
+  mocha: {
+    before: () => nock.disableNetConnect(),
+    after: () => nock.enableNetConnect(),
+    afterEach: () => nock.cleanAll()
+  },
   fixuraOptions: {
-    reader: READERS.JSON,
-    failWhenNotFound: false
+    failWhenNotFound: false,
+    reader: READERS.JSON
   }
 });
 
-function callback({getFixture, method, expectedToken, parameters}) {
+function callback({getFixture, getFixtures, defaultParameters, method, requests, error}) {
   const baseUrl = 'http://foo.bar';
-  const expectedRecords = [];
-  const serverResponses = [getFixture('response.xml')];
+  const expectedRecords = getFixture('expected-records.json');
+  const expectedToken = getFixture('expected-token.json');
 
-  generateNockInvocation();
+  generateNockMocks();
 
   let recordCount = 0; // eslint-disable-line functional/no-let
-  const client = createClient({url: baseUrl});
+  const client = createClient({...defaultParameters, url: baseUrl});
 
   return new Promise((resolve, reject) => {
-    client[method](parameters)
-      .on('error', reject)
+    client[method.name](method.parameters)
+      .on('error', err => {
+        try {
+          if (error) {
+            if (typeof error === 'object' && error.code) {
+              expect(err).to.be.an.instanceOf(OaiPmhError);
+              expect(err.code).to.equal(error.code);
+              return resolve();
+            }
+
+            expect(err.message).to.match(new RegExp(error, 'u'));
+            return resolve();
+          }
+
+          throw err;
+        } catch (err) {
+          reject(err);
+        }
+      })
       .on('record', record => {
         try {
-          expect(expectedRecords[recordCount]).to.eql(record);
+          expect(expectedRecords[recordCount]).to.eql(format());
           recordCount++; // eslint-disable-line no-plusplus
         } catch (err) {
           reject(err);
+        }
+
+        function format() {
+          return {
+            ...record,
+            header: {
+              ...record.header,
+              datestamp: record.header.datestamp.toISOString()
+            }
+          };
         }
       })
       .on('end', resumptionToken => {
         try {
           if (expectedToken) {
-            expect(resumptionToken).to.equal(resumptionToken);
+            expect(expectedToken).to.eql(format(resumptionToken));
             return resolve();
+          }
+
+          if (resumptionToken) { // eslint-disable-line functional/no-conditional-statement
+            throw new Error(`Unexpected resumption token: ${resumptionToken}`);
           }
 
           resolve();
         } catch (err) {
           reject(err);
         }
+
+        function format() {
+          return {
+            ...resumptionToken,
+            expirationDate: resumptionToken.expirationDate.toISOString()
+          };
+        }
       });
   });
 
-  function generateNockInvocation() {
+  function generateNockMocks() {
     const nockInstance = nock(baseUrl);
 
-    if (serverResponses) {
-      return serverResponses.forEach((response, index) => {
-        const parameters = index === 0 ? '?verb=ListRecords&metadataPrefix=foo' : `?verb=ListRecords&resumptionToken=${index}`;
+    if (requests) {
+      const requestFixtures = getFixtures({
+        components: [/^response[0-9]+\.xml$/u],
+        reader: READERS.TEXT
+      });
+
+      return requests.forEach(({url, status}, index) => {
         nockInstance
-          .get(parameters)
-          .reply(response);
+          .get(url)
+          .reply(status, requestFixtures[index]);
       });
     }
   }
