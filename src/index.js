@@ -26,7 +26,6 @@
 *
 */
 
-/* eslint-disable no-unused-vars */
 import fetch from 'node-fetch';
 import moment from 'moment';
 import httpStatus from 'http-status';
@@ -61,7 +60,7 @@ export default ({
   url: baseUrl,
   metadataPrefix: metadataPrefixDefault,
   set: setDefault,
-  metadataFormat = metadataFormats.object,
+  metadataFormat = metadataFormats.string,
   retrieveAll = true
 }) => {
   const debug = createDebugLogger('@natlibfi/oai-pmh-client');
@@ -172,7 +171,7 @@ export default ({
               return emitRecords(records.slice(1));
             }
 
-            emitter.emit('record', {...formatted, metadata: formatMetadata(record.metadata)});
+            emitter.emit('record', {...formatted, metadata: formatMetadata(record.metadata[0])});
             return emitRecords(records.slice(1));
           }
 
@@ -224,7 +223,11 @@ export default ({
         }
       });
 
-      return metadata => builder.buildObject(metadata);
+
+      return metadata => {
+        const [[key, value]] = Object.entries(metadata);
+        return builder.buildObject({[key]: value[0]});
+      };
     }
 
     throw new Error(`Invalid metadata format: ${metadataFormat}`);

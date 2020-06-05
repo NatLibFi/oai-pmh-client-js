@@ -11,12 +11,6 @@
       "identifier": "oai:foo.bar/2",
       "datestamp": "2007-12-31T22:00:00.000Z"
     },
-    "metadata": [
-      {
-        "foo": [
-          "bar"
-        ]
-      }
-    ]   
+    "metadata":  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<foo>bar</foo>"
   }  
 ]

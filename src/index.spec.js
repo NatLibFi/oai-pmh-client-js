@@ -28,34 +28,24 @@
 
 import createClient, {OaiPmhError} from '.';
 import {expect} from 'chai';
-import nock from 'nock';
 import {READERS} from '@natlibfi/fixura';
-import generateTests from './generate-tests';
+import generateTests from '@natlibfi/fixugen-http-client';
+
 
 generateTests({
   callback,
-  useMetadataFile: true,
   path: [__dirname, '..', 'test-fixtures'],
-  mocha: {
-    before: () => nock.disableNetConnect(),
-    after: () => nock.enableNetConnect(),
-    afterEach: () => nock.cleanAll()
-  },
-  fixuraOptions: {
-    failWhenNotFound: false,
+  fixura: {
     reader: READERS.JSON
   }
 });
 
-function callback({getFixture, getFixtures, defaultParameters, method, requests, error}) {
-  const baseUrl = 'http://foo.bar';
+function callback({getFixture, defaultParameters, method, error}) {
   const expectedRecords = getFixture('expected-records.json');
   const expectedToken = getFixture('expected-token.json');
 
-  generateNockMocks();
-
   let recordCount = 0; // eslint-disable-line functional/no-let
-  const client = createClient({...defaultParameters, url: baseUrl});
+  const client = createClient({...defaultParameters, url: 'http://foo.bar'});
 
   return new Promise((resolve, reject) => {
     client[method.name](method.parameters)
@@ -119,21 +109,4 @@ function callback({getFixture, getFixtures, defaultParameters, method, requests,
         }
       });
   });
-
-  function generateNockMocks() {
-    const nockInstance = nock(baseUrl);
-
-    if (requests) {
-      const requestFixtures = getFixtures({
-        components: [/^response[0-9]+\.xml$/u],
-        reader: READERS.TEXT
-      });
-
-      return requests.forEach(({url, status}, index) => {
-        nockInstance
-          .get(url)
-          .reply(status, requestFixtures[index]);
-      });
-    }
-  }
 }

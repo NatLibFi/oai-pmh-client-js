@@ -1,3 +1,4 @@
+---
 kind: pipeline
 type: docker
 name: Default
@@ -5,35 +6,34 @@ name: Default
 trigger:
   event:
     - push
-
-environment:
-  NPM_CONFIG_IGNORE_SCRIPTS: true
-  NODE_VERSION: 12
+    - tag
 
 steps:
 
   - name: audit
-    image: node:${NODE_VERSION}
+    image: node:12
     commands:
-      - npm audit --package-lock-only --audit-level=moderate
+      - npm audit --package-lock-only --production --audit-level=moderate
 
   - name: install
-    image: node:${NODE_VERSION}
+    image: node:12
+    environment:
+      NPM_CONFIG_IGNORE_SCRIPTS: true    
     commands:
       - npm ci
 
   - name: test
-    image: node:${NODE_VERSION}
+    image: node:12
     commands:
       - npm test
 
   - name: check-coverage
-    image: node:${NODE_VERSION}
+    image: node:12
     commands:
-      - npm run check-coverage
+      - npm run coverage
 
   - name: build
-    image: node:${NODE_VERSION}
+    image: node:12
     commands:
       - npm run build
       - npm ci --production
@@ -42,41 +42,21 @@ steps:
     image: quay.io/natlibfi/nodejsscan
     commands:
       - python /usr/src/app/cli.py -d dist
-
----
-kind: pipeline
-type: docker
-name: Update dependencies
-
-trigger:
-  event:
-    - custom
-  branch:
-    - next
-
-steps:
-
-  - name: update-deps
-    image: node:${NODE_VERSION}
-    commands:
-      - npm install --package-lock-only
-
-  - name: commit-and-push
-    image: quay.io/natlibfi/drone-plugin-git-push
+  
+  - name: npm
+    image: plugins/npm
     settings:
-      remote: ${DRONE_GIT_SSH_URL}
-      branch: next
-      commit: true
-      commit_message: 'Update dependencies'
-      author_name: natlibfi-melinda-automation
-      author_email: 65649125+natlibfi-melinda-automation@users.noreply.github.com
-      ssh_key:
-        from_secret: github_deploy_key
---
-kind: secret
-name: github_deploy_key
-data:
+      registry: 'https://registry.npmjs.org/'
+      token:
+        from_secret: npm_token
+    when:
+      event: tag
 ---
 kind: secret
 name: npm_token
-data: 
+data: pgkxKUuPgdYiH8gzM6TCcxRiCIx2WTwZ/ywi2JTfTjdrNHBncsjTGsA9pPUmVYMhSqybY9VpHj3+u9kPBdRtpQ==
+---
+kind: signature
+hmac: 508ba54bb56c9a647aded098d584e5d48ce9c3c35c6653727c9b5a167d2ce505
+
+...
