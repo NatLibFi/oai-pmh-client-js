@@ -61,7 +61,8 @@ export default ({
   metadataPrefix: metadataPrefixDefault,
   set: setDefault,
   metadataFormat = metadataFormats.string,
-  retrieveAll = true
+  retrieveAll = true,
+  filterDeleted = false
 }) => {
   const debug = createDebugLogger('@natlibfi/oai-pmh-client');
   const formatMetadata = createFormatter();
@@ -167,6 +168,10 @@ export default ({
             const formatted = formatRecord();
 
             if (formatted.header.status === 'deleted') {
+              if (filterDeleted) {
+                return emitRecords(records.slice(1));
+              }
+
               emitter.emit('record', formatted);
               return emitRecords(records.slice(1));
             }
