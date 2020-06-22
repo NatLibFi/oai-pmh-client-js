@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/oai-pmh-client-js.git"
 	},
 	"license": "LGPL-3.0+",
-	"version": "1.0.0-alpha.2",
+	"version": "1.0.0",
 	"main": "./dist/index.js",
 	"engines": {
 		"node": ">=12"
@@ -23,7 +23,6 @@
 		"access": "public"
 	},
 	"scripts": {
-		"start": "node dist/index.js",
 		"lint": "eslint src",
 		"lint:dev": "eslint --fix src",
 		"test:base": "cross-env NODE_ENV=test nyc mocha --require @babel/register",
@@ -38,7 +37,7 @@
 		"http-status": "^1.4.2",
 		"moment": "^2.26.0",
 		"node-fetch": "^2.6.0",
-		"xml2js": "^0.4.23"
+		"xml2js": ">=0.4.23 <1.0.0"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.10.1",
@@ -47,7 +46,7 @@
 		"@babel/preset-env": "^7.10.1",
 		"@babel/register": "^7.10.1",
 		"@natlibfi/eslint-config-melinda-backend": "^1.0.3",
-		"@natlibfi/fixugen-http-client": "^1.0.0-alpha.1",
+		"@natlibfi/fixugen-http-client": "^1.0.0",
 		"@natlibfi/fixura": "^2.1.2",
 		"babel-eslint": "^10.1.0",
 		"babel-plugin-istanbul": "^6.0.0",
