@@ -1,0 +1,22 @@
+{
+  "description": "Should filter out deleted records",
+  "defaultParameters": {
+    "metadataPrefix": "foo",
+    "filterDeleted": true
+  },
+  "method": {
+    "name": "listRecords"
+  },
+  "requests": [
+    {
+      "method": "get",
+      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "status": 200
+    },
+    {
+      "method": "get",
+      "url": "/?verb=ListRecords&resumptionToken=foobar",
+      "status": 200
+    }        
+  ]  
+}

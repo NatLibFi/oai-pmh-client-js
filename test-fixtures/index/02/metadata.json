@@ -1,0 +1,17 @@
+{
+  "description": "Should retrieve records only from the first response",
+  "defaultParameters": {
+    "metadataPrefix": "foo",
+    "retrieveAll": false
+  },
+  "method": {
+    "name": "listRecords"
+  },
+  "requests": [
+    {
+      "method": "get",
+      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "status": 200
+    }     
+  ]  
+}

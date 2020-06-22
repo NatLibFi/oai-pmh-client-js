@@ -1,0 +1,19 @@
+{
+  "description": "Should respond with an error",
+  "defaultParameters": {
+    "metadataPrefix": "foo"    
+  },
+  "method": {
+    "name": "listRecords"
+  },
+  "requests": [
+    {
+      "method": "get",
+      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "status": 200
+    }     
+  ],
+  "error": {
+    "code": "cannotDisseminateFormat"
+  }
+}

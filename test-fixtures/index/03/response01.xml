@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+        <request verb="ListRecords" metadataPrefix="foo">http://foo.bar</request>
+        <responseDate>2020-06-02T11:16:35.407Z</responseDate>
+        <error code="cannotDisseminateFormat"/>
+</OAI-PMH>
