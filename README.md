@@ -21,6 +21,15 @@ client.listRecords()
   .on('end', resumptionToken => endProcessing(resumptionToken))
   .on('error', err => handleError(err));
 ```
+
+And then use the returned resumption token:
+```js
+client.listRecords(resumptionToken)
+  .on('record', record => processRecord(string))
+  .on('end', resumptionToken => endProcessing(resumptionToken))
+  .on('error', err => handleError(err));
+```
+
 # Configuration
 ## Client creation options
 - **url**: The URL of the OAI-PMH service.
