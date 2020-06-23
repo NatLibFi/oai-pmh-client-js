@@ -75,7 +75,7 @@ export default ({
 
   return {listRecords};
 
-  function listRecords({resumptionToken, metadataPrefix: metadataPrefixArg, set: setArg} = {}) {
+  function listRecords({resumptionToken, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
     const metadataPrefix = metadataPrefixArg || metadataPrefixDefault;
     const set = setArg || setDefault;
     const emitter = new Emitter();
@@ -83,11 +83,10 @@ export default ({
     iterate(resumptionToken);
     return emitter;
 
-    async function iterate(resumptionToken) {
+    async function iterate({token}) {
       try {
-        if (resumptionToken) {
-          debug(resumptionToken);
-          await processRequest({verb: 'ListRecords', resumptionToken});
+        if (token) {
+          await processRequest({verb: 'ListRecords', resumptionToken: token});
           return;
         }
 
@@ -112,7 +111,7 @@ export default ({
 
           if (resumptionToken) {
             if (retrieveAll) {
-              return iterate(resumptionToken._);
+              return iterate(formatResumptionToken(resumptionToken));
             }
 
             return emitter.emit('end', formatResumptionToken(resumptionToken));
