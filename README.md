@@ -24,7 +24,7 @@ client.listRecords()
 
 And then use the returned resumption token:
 ```js
-client.listRecords(resumptionToken)
+client.listRecords({resumptionToken})
   .on('record', record => processRecord(string))
   .on('end', resumptionToken => endProcessing(resumptionToken))
   .on('error', err => handleError(err));
