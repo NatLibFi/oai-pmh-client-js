@@ -75,7 +75,7 @@ export default ({
 
   return {listRecords};
 
-  function listRecords({resumptionToken, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
+  function listRecords({resumptionToken = {}, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
     const metadataPrefix = metadataPrefixArg || metadataPrefixDefault;
     const set = setArg || setDefault;
     const emitter = new Emitter();
