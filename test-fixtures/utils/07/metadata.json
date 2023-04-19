@@ -1,0 +1,4 @@
+{
+  "description": "Join {value: true} obj to {} obj, filter [test]",
+  "arrayOfKeysWanted": ["test"]
+}

@@ -13,7 +13,7 @@
 		"type": "git",
 		"url": "git@github.com:natlibfi/oai-pmh-client-js.git"
 	},
-	"license": "LGPL-3.0+",
+	"license": "mit",
 	"version": "3.0.0-alpha.2",
 	"main": "./dist/index.js",
 	"engines": {
@@ -47,6 +47,7 @@
 		"@babel/preset-env": "^7.21.4",
 		"@babel/register": "^7.21.0",
 		"@natlibfi/eslint-config-melinda-backend": "^2.0.2",
+		"@natlibfi/fixugen": "^2.0.0",
 		"@natlibfi/fixugen-http-client": "^2.0.1",
 		"@natlibfi/fixura": "^3.0.0",
 		"babel-plugin-istanbul": "^6.1.1",
@@ -84,8 +85,7 @@
 			"*/*.spec.js"
 		],
 		"reporter": [
-			"lcov",
-			"html"
+			"text"
 		],
 		"require": [
 			"@babel/register"
