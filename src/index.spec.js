@@ -4,7 +4,7 @@
 *
 * OAI-PMH Javascript client library
 *
-* Copyright (C) 2020 University Of Helsinki (The National Library Of Finland)
+* Copyright (C) 2020, 2023 University Of Helsinki (The National Library Of Finland)
 *
 * This file is part of oai-pmh-client-js
 *
