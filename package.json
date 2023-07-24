@@ -46,7 +46,7 @@
 		"@babel/node": "^7.22.6",
 		"@babel/preset-env": "^7.22.9",
 		"@babel/register": "^7.22.5",
-		"@natlibfi/eslint-config-melinda-backend": "^2.0.2",
+		"@natlibfi/eslint-config-melinda-backend": "^3.0.0",
 		"@natlibfi/fixugen-http-client": "^2.0.1",
 		"@natlibfi/fixura": "^3.0.0",
 		"babel-plugin-istanbul": "^6.1.1",
