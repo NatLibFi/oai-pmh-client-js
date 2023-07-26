@@ -92,7 +92,7 @@ function callback({getFixture, defaultParameters, method, error}) {
             return resolve();
           }
 
-          if (resumptionToken) { // eslint-disable-line functional/no-conditional-statement
+          if (resumptionToken) { // eslint-disable-line functional/no-conditional-statements
             throw new Error(`Unexpected resumption token: ${resumptionToken}`);
           }
 
