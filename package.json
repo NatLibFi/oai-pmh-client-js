@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/oai-pmh-client-js.git"
 	},
 	"license": "LGPL-3.0+",
-	"version": "3.0.2-alpha.1",
+	"version": "3.0.2-alpha.2",
 	"main": "./dist/index.js",
 	"engines": {
 		"node": ">=18"
@@ -81,31 +81,31 @@
 	},
 	"mocha": {
 		"spec": [
-		  "src/*.spec.js",
-		  "src/**/*.spec.js"
+			"src/*.spec.js",
+			"src/**/*.spec.js"
 		],
 		"require": [
-		  "@babel/register"
+			"@babel/register"
 		],
 		"inline-diffs": true,
 		"maxDiffSize": 25000,
 		"bail": true,
 		"exit": true
-	  },
-	  "nodemonConfig": {
+	},
+	"nodemonConfig": {
 		"exec": "npm run test:dev",
 		"watch": [
-		  "src/*",
-		  "test-fixtures/*"
+			"src/*",
+			"test-fixtures/*"
 		]
-	  },
-	  "nyc": {
+	},
+	"nyc": {
 		"exclude": [
-		  "src/*.spec.js",
-		  "src/**/*.spec.js"
+			"src/*.spec.js",
+			"src/**/*.spec.js"
 		],
 		"reporter": [
-		  "text"
+			"text"
 		],
 		"sourceMap": false,
 		"instrument": false,
@@ -113,5 +113,5 @@
 		"statements": 80,
 		"functions": 80,
 		"branches": 80
-	  }
+	}
 }
