@@ -25,7 +25,7 @@ export const metadataFormats = {
 export class OaiPmhError extends Error {
   constructor(code, ...args) {
     super(args);
-    this.code = code; // eslint-disable-line functional/no-this-expression
+    this.code = code; // eslint-disable-line functional/no-this-expressions
   }
 }
 
@@ -81,7 +81,7 @@ export default ({
         if (response.status === httpStatus.OK) {
           const {records, error, resumptionToken} = await parsePayload(response);
 
-          if (error) { // eslint-disable-line functional/no-conditional-statement
+          if (error) { // eslint-disable-line functional/no-conditional-statements
             throw new OaiPmhError(error);
           }
 
