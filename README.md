@@ -44,6 +44,6 @@ client.listRecords({resumptionToken})
 - **resumptionToken**: Resumption to use to resume the harvesting from.
 ## License and copyright
 
-Copyright (c) 2020 **University Of Helsinki (The National Library Of Finland)**
+Copyright (c) 2020, 2023 **University Of Helsinki (The National Library Of Finland)**
 
 This project's source code is licensed under the terms of **GNU Lesser General Public License Version 3** or any later version.
