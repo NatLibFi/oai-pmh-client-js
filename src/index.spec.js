@@ -45,7 +45,7 @@ function callback({getFixture, defaultParameters, method, error}) {
   const expectedToken = getFixture('expected-token.json');
 
   let recordCount = 0; // eslint-disable-line functional/no-let
-  const client = createClient({...defaultParameters, url: 'http://foo.bar'});
+  const client = createClient({...defaultParameters, url: 'http://foo.bar', set: 'foo:bar'});
 
   return new Promise((resolve, reject) => {
     client[method.name](method.parameters)

@@ -200,7 +200,7 @@ export default ({
         function generateUrl(params) {
           const formatted = Object.entries(params)
             .filter(([, value]) => value)
-            .reduce((acc, [key, value]) => ({...acc, [key]: encodeURIComponent(value)}), {});
+            .reduce((acc, [key, value]) => ({...acc, [key]: value}), {});
 
           const searchParams = new URLSearchParams(formatted);
           return `${baseUrl}?${searchParams.toString()}`;
