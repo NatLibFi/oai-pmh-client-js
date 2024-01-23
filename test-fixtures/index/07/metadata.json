@@ -1,7 +1,8 @@
 {
-  "description": "Should retrieve all records",
+  "description": "May use until filter without from filter",
   "defaultParameters": {
-    "metadataPrefix": "foo"
+    "metadataPrefix": "foo",
+    "until": "2024-01-23T23:59:59Z"
   },
   "method": {
     "name": "listRecords"
@@ -9,7 +10,7 @@
   "requests": [
     {
       "method": "get",
-      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "url": "/?verb=ListRecords&metadataPrefix=foo&until=2024-01-23T23%3A59%3A59Z",
       "status": 200
     },
     {

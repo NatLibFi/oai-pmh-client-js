@@ -1,7 +1,8 @@
 {
-  "description": "Should retrieve all records",
+  "description": "May use set filter",
   "defaultParameters": {
-    "metadataPrefix": "foo"
+    "metadataPrefix": "foo",
+    "set": "foo:bar"
   },
   "method": {
     "name": "listRecords"
@@ -9,7 +10,7 @@
   "requests": [
     {
       "method": "get",
-      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "url": "/?verb=ListRecords&metadataPrefix=foo&set=foo%3Abar",
       "status": 200
     },
     {

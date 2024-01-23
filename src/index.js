@@ -60,6 +60,8 @@ export default ({
   url: baseUrl,
   metadataPrefix: metadataPrefixDefault,
   set: setDefault,
+  from: fromDefault,
+  until: untilDefault,
   metadataFormat = metadataFormats.string,
   retrieveAll = true,
   filterDeleted = false
@@ -75,9 +77,12 @@ export default ({
 
   return {listRecords};
 
-  function listRecords({resumptionToken = {}, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
+  function listRecords({resumptionToken = {}, metadataPrefix: metadataPrefixArg, set: setArg, from: fromArg, until: untilArg} = {resumptionToken: {}}) {
     const metadataPrefix = metadataPrefixArg || metadataPrefixDefault;
     const set = setArg || setDefault;
+    const from = fromArg || fromDefault;
+    const until = untilArg || untilDefault;
+
     const emitter = new Emitter();
 
     iterate(resumptionToken);
@@ -90,7 +95,7 @@ export default ({
           return;
         }
 
-        await processRequest({verb: 'ListRecords', metadataPrefix, set});
+        await processRequest({verb: 'ListRecords', metadataPrefix, set, from, until});
       } catch (err) {
         return emitter.emit('error', err);
       }
@@ -200,7 +205,7 @@ export default ({
         function generateUrl(params) {
           const formatted = Object.entries(params)
             .filter(([, value]) => value)
-            .reduce((acc, [key, value]) => ({...acc, [key]: encodeURIComponent(value)}), {});
+            .reduce((acc, [key, value]) => ({...acc, [key]: value}), {});
 
           const searchParams = new URLSearchParams(formatted);
           return `${baseUrl}?${searchParams.toString()}`;
