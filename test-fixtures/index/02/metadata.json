@@ -12,6 +12,6 @@
       "method": "get",
       "url": "/?verb=ListRecords&metadataPrefix=foo",
       "status": 200
-    }     
-  ]  
+    }
+  ]
 }

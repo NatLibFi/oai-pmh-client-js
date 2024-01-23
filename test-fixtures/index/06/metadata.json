@@ -1,7 +1,8 @@
 {
-  "description": "Should retrieve all records",
+  "description": "May use from filter without until filter",
   "defaultParameters": {
-    "metadataPrefix": "foo"
+    "metadataPrefix": "foo",
+    "from": "1970-01-01T00:00:00Z"
   },
   "method": {
     "name": "listRecords"
@@ -9,7 +10,7 @@
   "requests": [
     {
       "method": "get",
-      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "url": "/?verb=ListRecords&metadataPrefix=foo&from=1970-01-01T00%3A00%3A00Z",
       "status": 200
     },
     {
