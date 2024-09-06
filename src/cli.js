@@ -26,6 +26,8 @@ async function run() {
       ['$ node $0/dist/cli.js sets'],
       ['$ node $0/dist/cli.js sets --file ./sets.xml'],
       ['$ node $0/dist/cli.js query'],
+      ['$ node $0/dist/cli.js query -f 2024-09-05'],
+      ['$ node $0/dist/cli.js query -f 2024-09-05 -u 2024-09-06'],
       ['$ node $0/dist/cli.js query --file ./records.xml']
     ])
     .version()
