@@ -45,7 +45,13 @@ export default ({
     }
   }
 
-  return {listRecords};
+  return {listRecords, verbQuery};
+
+  async function verbQuery(verb = 'Identify') {
+    const url = `${baseUrl}?verb=${verb}`;
+    const response = await fetch(url);
+    return response;
+  }
 
   function listRecords({resumptionToken = {}, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
     const metadataPrefix = metadataPrefixArg || metadataPrefixDefault;
