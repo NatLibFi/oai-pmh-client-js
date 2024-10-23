@@ -1,6 +1,6 @@
 import fs from 'fs';
 import yargs from 'yargs';
-import {createLogger, handleInterrupt, parseBoolean} from '@natlibfi/melinda-backend-commons';
+import {createLogger, handleInterrupt} from '@natlibfi/melinda-backend-commons';
 
 import createClient from './index.js';
 
@@ -40,7 +40,7 @@ async function run() {
       f: {type: 'string', default: undefined, alias: 'from', describe: 'Records from timestamp'},
       u: {type: 'string', default: undefined, alias: 'until', describe: 'Records until timestamp'},
       file: {type: 'string', default: false, describe: 'File name for output'},
-      overWriteFile: {type: 'string', default: false, describe: 'over write file if exists'},
+      overWriteFile: {type: 'string', default: false, describe: 'over write file if exists'}
     })
     .check((args) => {
       const [command] = args._;
@@ -66,16 +66,17 @@ async function run() {
     filterDeleted: parseBoolean(args.filterDeleted)
   };
 
-  //logger.debug(JSON.stringify(oaiPmhOptions));
+  logger.debug(JSON.stringify(oaiPmhOptions));
 
   const client = createClient(oaiPmhOptions);
 
   if (command.toLowerCase() === 'query') {
     const queryOptions = {
-      metadataPrefix: args.metadataPrefix ? args.metadataPrefix === 'false' ? false : args.metadataPrefix : false,
-      set: args.set ? args.set === 'false' ? false : args.set : false,
+      metadataPrefix: !args.metadataPrefix || args.metadataPrefix === 'false' ? false : args.metadataPrefix,
+      set: !args.set || args.set === 'false' ? false : args.set,
       from: args.from,
-      until: args.until
+      until: args.until,
+      resumptionToken: args.resumptionToken || undefined
     };
 
     const query = generateUrl(queryOptions);
@@ -98,7 +99,7 @@ async function run() {
   return handleOutput(response.text());
 
   async function handleOutput(output) {
-    const file = args.file ? args.file === 'false' ? false : args.file : false;
+    const file = !args.file || args.file === 'false' ? false : args.file;
     const overWriteFile = parseBoolean(args.overWriteFile);
 
     if (file) {
@@ -109,14 +110,14 @@ async function run() {
           return;
         }
 
-        throw new Error(`Directory ${outputDirectory} already exists!`);
+        throw new Error(`Directory ${file} already exists!`);
       }
 
       fs.writeFileSync(file, output);
       return;
     }
 
-    console.log(await output);
+    console.log(await output); // eslint-disable-line
   }
 
   function generateUrl(params) {
