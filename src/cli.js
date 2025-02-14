@@ -34,6 +34,8 @@ async function run() {
     .env('OAI_PMH')
     .positional('command', {type: 'string', describe: 'oai-pmh command type'})
     .options({
+      a: {type: 'string', default: undefined, alias: 'apiKey', describe: 'Api key for Oai-pmh header'},
+      h: {type: 'string', default: undefined, alias: 'apiKeyHeader', describe: 'Header name for Oai-pmh api key'},
       p: {type: 'string', default: 'melinda_marc', alias: 'metadataPrefix', describe: 'Oai-pmh record metadata prefix'},
       s: {type: 'string', default: undefined, alias: 'set', describe: 'Oai-pmh record set identifier'},
       t: {type: 'string', default: undefined, alias: 'resumptionToken', describe: 'Oai-pmh resumption token'},
@@ -52,13 +54,15 @@ async function run() {
     })
     .parseSync();
 
-  logger.debug(JSON.stringify(args));
+  //logger.debug(JSON.stringify(args));
   const [command] = args._;
   const {url} = args;
 
   logger.debug('Reading oai-pmh url from env');
   const oaiPmhOptions = {
     url,
+    apiKey: args.apiKey,
+    apiKeyHeader: args.apiKeyHeader,
     metadataPrefix: args.metadataPrefix,
     set: args.set,
     metadataFormat: args.metadataFormat,
@@ -66,7 +70,7 @@ async function run() {
     filterDeleted: parseBoolean(args.filterDeleted)
   };
 
-  logger.debug(JSON.stringify(oaiPmhOptions));
+  //logger.debug(JSON.stringify(oaiPmhOptions));
 
   const client = createClient(oaiPmhOptions);
 
@@ -80,7 +84,7 @@ async function run() {
     };
 
     const query = generateUrl(queryOptions);
-
+    logger.debug(query);
     const response = await client.verbQuery(query);
     return handleOutput(response.text());
   }
@@ -116,7 +120,7 @@ async function run() {
       fs.writeFileSync(file, output);
       return;
     }
-
+    console.log('Output:'); // eslint-disable-line
     console.log(await output); // eslint-disable-line
   }
 

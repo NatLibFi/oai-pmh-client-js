@@ -30,6 +30,8 @@ export class OaiPmhError extends Error {
 
 export default ({
   url: baseUrl,
+  apiKey = false,
+  apiKeyHeader = false,
   metadataPrefix: metadataPrefixDefault,
   set: setDefault,
   metadataFormat = metadataFormats.string,
@@ -49,7 +51,8 @@ export default ({
 
   async function verbQuery(verb = 'Identify') {
     const url = `${baseUrl}?verb=${verb}`;
-    const response = await fetch(url);
+    debug(`Sending request: ${url.toString()}`);
+    const response = await doFetch(url);
     return response;
   }
 
@@ -76,7 +79,7 @@ export default ({
       async function processRequest(parameters) {
         const url = generateUrl(parameters);
         debug(`Sending request: ${url.toString()}`);
-        const response = await fetch(url);
+        const response = await doFetch(url);
 
         if (response.status === httpStatus.OK) {
           const {records, error, resumptionToken} = await parsePayload(response);
@@ -185,6 +188,26 @@ export default ({
         }
       }
     }
+  }
+
+  async function doFetch(url) {
+    if (apiKeyHeader && apiKey) {
+      const headers = {};
+      headers[apiKeyHeader] = apiKey;
+      headers['Accept'] = '*/*';
+      headers['User-Agent'] = 'Melinda-oai-pmh-client';
+      debug(`Request headers: ${JSON.stringify(headers)}`);
+      const result = await fetch(url, {
+        headers
+      });
+
+      debug(`Request response: ${JSON.stringify(result)}`);
+      return result;
+    }
+
+    const result = await fetch(url);
+    debug(`Request response: ${JSON.stringify(result)}`);
+    return result;
   }
 
   function createFormatter() {
