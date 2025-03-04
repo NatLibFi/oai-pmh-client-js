@@ -16,6 +16,6 @@
       "method": "get",
       "url": "/?verb=ListRecords&resumptionToken=foobar",
       "status": 200
-    }        
-  ]  
+    }
+  ]
 }

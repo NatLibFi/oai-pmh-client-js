@@ -2,8 +2,10 @@ import fetch from 'node-fetch';
 import moment from 'moment';
 import httpStatus from 'http-status';
 import {EventEmitter} from 'events';
-import {Parser as XMLParser, Builder as XMLBuilder} from 'xml2js';
+//import {Parser as XMLParser, Builder as XMLBuilder} from 'xml2js';
 import createDebugLogger from 'debug';
+import {XMLParser, XMLBuilder} from 'fast-xml-parser';
+
 
 export const errors = {
   badArgument: 'badArgument',
@@ -36,7 +38,9 @@ export default ({
   set: setDefault,
   metadataFormat = metadataFormats.string,
   retrieveAll = true,
-  filterDeleted = false
+  filterDeleted = false,
+  cli = false,
+  handleOutput = false
 }) => {
   const debug = createDebugLogger('@natlibfi/oai-pmh-client');
   const formatMetadata = createFormatter();
@@ -57,6 +61,8 @@ export default ({
   }
 
   function listRecords({resumptionToken = {}, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
+    debug(`List records`);
+    debug(`ResumptionToken: ${resumptionToken}`);
     const metadataPrefix = metadataPrefixArg || metadataPrefixDefault;
     const set = setArg || setDefault;
     const emitter = new Emitter();
@@ -64,35 +70,43 @@ export default ({
     iterate(resumptionToken);
     return emitter;
 
-    async function iterate({token}) {
+    async function iterate({token}, iteration = 1) {
       try {
         if (token) {
-          await processRequest({verb: 'ListRecords', resumptionToken: token});
+          await processRequest({verb: 'ListRecords', resumptionToken: token}, iteration);
           return;
         }
 
-        await processRequest({verb: 'ListRecords', metadataPrefix, set});
+        await processRequest({verb: 'ListRecords', metadataPrefix, set}, iteration);
       } catch (err) {
         return emitter.emit('error', err);
       }
 
-      async function processRequest(parameters) {
+      async function processRequest(parameters, iteration) {
         const url = generateUrl(parameters);
         debug(`Sending request: ${url.toString()}`);
         const response = await doFetch(url);
 
         if (response.status === httpStatus.OK) {
-          const {records, error, resumptionToken} = await parsePayload(response);
+          const responseText = await response.text();
+
+          // For cli to write file
+          if (cli) { // eslint-disable-line functional/no-conditional-statements
+            handleOutput(responseText, true, `result_${iteration}.xml`, iteration === 1);
+          }
+
+          const {records, error, resumptionToken} = await parsePayload(responseText);
 
           if (error) { // eslint-disable-line functional/no-conditional-statements
             throw new OaiPmhError(error);
           }
 
+
           emitRecords(records);
 
           if (resumptionToken) {
             if (retrieveAll) {
-              return iterate(formatResumptionToken(resumptionToken));
+              return iterate(formatResumptionToken(resumptionToken), iteration + 1);
             }
 
             return emitter.emit('end', formatResumptionToken(resumptionToken));
@@ -103,73 +117,75 @@ export default ({
 
         throw new Error(`Unexpected response ${response.status}: ${await response.text()}`);
 
-        function formatResumptionToken({_, $: {expirationDate, cursor}}) {
+        function formatResumptionToken(resumptionToken) {
           return {
-            token: _,
-            expirationDate: moment(expirationDate),
-            cursor: Number(cursor)
+            token: resumptionToken['#text'],
+            expirationDate: moment(resumptionToken.$.expirationDate),
+            cursor: Number(resumptionToken.$.cursor)
           };
         }
 
-        async function parsePayload(response) {
-          const payload = await parse();
+        async function parsePayload(responseText) {
+          const payload = await parse(responseText);
           const {error} = payload['OAI-PMH'];
 
           if (error) {
-            return {error: error[0].$.code};
+            return {error: error.$.code};
           }
 
           const {
             'OAI-PMH': {
-              ListRecords: [{record: records, resumptionToken}]
+              ListRecords: {record: records, resumptionToken}
             }
           } = payload;
 
-          return {records, resumptionToken: resumptionToken?.[0]};
+          return {records, resumptionToken};
 
-          async function parse() {
-            const payload = await response.text();
-
+          function parse(payload) {
             return new Promise((resolve, reject) => {
-              new XMLParser().parseString(payload, (err, obj) => {
-                if (err) {
-                  return reject(new Error(`Error parsing XML: ${err}, input: ${payload}`));
-                }
+              try {
+                const obj = new XMLParser({
+                  ignoreAttributes: false,
+                  attributesGroupName: '$',
+                  attributeNamePrefix: ''
+                }).parse(payload);
                 return resolve(obj);
-              });
+              } catch (err) {
+                reject(new Error(`Error parsing XML: ${err}, input: ${payload}`));
+              }
             });
           }
         }
 
         function emitRecords(records) {
-          const [record] = records;
+          const [record, ...rest] = records;
 
           if (record) {
             const formatted = formatRecord();
 
             if (formatted.header.status === 'deleted') {
               if (filterDeleted) {
-                return emitRecords(records.slice(1));
+                return emitRecords(rest);
               }
 
               emitter.emit('record', formatted);
-              return emitRecords(records.slice(1));
+              return emitRecords(rest);
             }
 
-            emitter.emit('record', {...formatted, metadata: formatMetadata(record.metadata[0])});
-            return emitRecords(records.slice(1));
+            emitter.emit('record', {...formatted, metadata: formatMetadata(record.metadata)});
+            return emitRecords(rest);
           }
 
           function formatRecord() {
             const obj = {
-              identifier: record.header[0].identifier[0],
-              datestamp: moment(record.header[0].datestamp[0])
+              identifier: record.header.identifier,
+              datestamp: moment(record.header.datestamp)
             };
 
-            if (record.header[0]?.$?.status) {
+            if (record.header.$?.status) {
               return {
                 header: {
-                  ...obj, status: record.header[0].$.status
+                  ...obj, status: record.header.$.status
                 }
               };
             }
@@ -179,11 +195,17 @@ export default ({
         }
 
         function generateUrl(params) {
+          const {resumptionToken} = params;
+          params.resumptionToken = undefined; // eslint-disable-line functional/immutable-data
           const formatted = Object.entries(params)
             .filter(([, value]) => value)
             .reduce((acc, [key, value]) => ({...acc, [key]: encodeURIComponent(value)}), {});
 
           const searchParams = new URLSearchParams(formatted);
+          if (resumptionToken !== undefined) {
+            return `${baseUrl}?${searchParams.toString()}&resumptionToken=${resumptionToken}`;
+          }
+
           return `${baseUrl}?${searchParams.toString()}`;
         }
       }
@@ -193,21 +215,22 @@ export default ({
   async function doFetch(url) {
     if (apiKeyHeader && apiKey) {
       const headers = {};
-      headers[apiKeyHeader] = apiKey;
-      headers['Accept'] = '*/*';
-      headers['User-Agent'] = 'Melinda-oai-pmh-client';
+      headers[apiKeyHeader] = apiKey; // eslint-disable-line functional/immutable-data
+      headers.Accept = '*/*'; // eslint-disable-line functional/immutable-data
+      headers['User-Agent'] = 'Melinda-oai-pmh-client'; // eslint-disable-line functional/immutable-data
       debug(`Request headers: ${JSON.stringify(headers)}`);
-      const result = await fetch(url, {
+      const response = await fetch(url, {
         headers
       });
 
-      debug(`Request response: ${JSON.stringify(result)}`);
-      return result;
+      debug(`Request response: ${JSON.stringify(response)}`);
+
+      return response;
     }
 
-    const result = await fetch(url);
-    debug(`Request response: ${JSON.stringify(result)}`);
-    return result;
+    const response = await fetch(url);
+    debug(`Request response: ${JSON.stringify(response)}`);
+    return response;
   }
 
   function createFormatter() {
@@ -217,21 +240,16 @@ export default ({
 
     if (metadataFormat === metadataFormats.string) {
       const builder = new XMLBuilder({
-        xmldec: {
-          version: '1.0',
-          encoding: 'UTF-8',
-          standalone: false
-        },
-        renderOpts: {
-          pretty: true,
-          indent: '\t'
-        }
+        processEntities: false,
+        format: true,
+        indentBy: '\t',
+        oneListGroup: true
       });
 
 
       return metadata => {
         const [[key, value]] = Object.entries(metadata);
-        return builder.buildObject({[key]: value[0]});
+        return builder.build({[key]: value});
       };
     }
 

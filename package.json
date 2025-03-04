@@ -38,6 +38,7 @@
 	"dependencies": {
 		"@natlibfi/melinda-backend-commons": "^2.3.1",
 		"debug": "^4.3.6",
+		"fast-xml-parser": "^4.5.3",
 		"http-status": "^1.7.4",
 		"moment": "^2.30.1",
 		"node-fetch": "^2.7.0",

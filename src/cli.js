@@ -22,27 +22,29 @@ async function run() {
     .showHelpOnFail(true)
     .example([
       ['$ node $0/dist/cli.js identify'],
-      ['$ node $0/dist/cli.js formats --file ./formats.xml'],
+      ['$ node $0/dist/cli.js formats '],
       ['$ node $0/dist/cli.js sets'],
-      ['$ node $0/dist/cli.js sets --file ./sets.xml'],
+      ['$ node $0/dist/cli.js sets'],
       ['$ node $0/dist/cli.js query'],
-      ['$ node $0/dist/cli.js query -f 2024-09-05'],
-      ['$ node $0/dist/cli.js query -f 2024-09-05 -u 2024-09-06'],
-      ['$ node $0/dist/cli.js query --file ./records.xml']
+      ['$ node $0/dist/cli.js query -from 2024-09-05'],
+      ['$ node $0/dist/cli.js query -from 2024-09-05 -until 2024-09-06'],
+      ['$ node $0/dist/cli.js query -filetype xml']
     ])
     .version()
     .env('OAI_PMH')
     .positional('command', {type: 'string', describe: 'oai-pmh command type'})
     .options({
-      a: {type: 'string', default: undefined, alias: 'apiKey', describe: 'Api key for Oai-pmh header'},
-      h: {type: 'string', default: undefined, alias: 'apiKeyHeader', describe: 'Header name for Oai-pmh api key'},
-      p: {type: 'string', default: 'melinda_marc', alias: 'metadataPrefix', describe: 'Oai-pmh record metadata prefix'},
-      s: {type: 'string', default: undefined, alias: 'set', describe: 'Oai-pmh record set identifier'},
-      t: {type: 'string', default: undefined, alias: 'resumptionToken', describe: 'Oai-pmh resumption token'},
-      f: {type: 'string', default: undefined, alias: 'from', describe: 'Records from timestamp'},
-      u: {type: 'string', default: undefined, alias: 'until', describe: 'Records until timestamp'},
-      file: {type: 'string', default: false, describe: 'File name for output'},
-      overWriteFile: {type: 'string', default: false, describe: 'over write file if exists'}
+      apikey: {type: 'string', default: undefined, describe: 'Api key for Oai-pmh header'},
+      apiKeyHeader: {type: 'string', default: undefined, describe: 'Header name for Oai-pmh api key'},
+      file: {type: 'boolean', default: false, describe: 'Print to file. Defaults false'},
+      filetype: {type: 'string', default: 'xml', describe: 'Filetype output. Defaults xml'},
+      from: {type: 'string', default: undefined, describe: 'Records from timestamp'},
+      metadataPrefix: {type: 'string', default: 'melinda_marc', describe: 'Oai-pmh record metadata prefix'},
+      overewrite: {type: 'string', default: false, describe: 'overwrite file/folder if exists'},
+      resumptionToken: {type: 'string', default: undefined, describe: 'Oai-pmh resumption token'},
+      retrieveAll: {type: 'string', default: false, describe: 'Get all records from query'},
+      set: {type: 'string', default: undefined, describe: 'Oai-pmh record set identifier'},
+      until: {type: 'string', default: undefined, describe: 'Records until timestamp'}
     })
     .check((args) => {
       const [command] = args._;
@@ -67,61 +69,93 @@ async function run() {
     set: args.set,
     metadataFormat: args.metadataFormat,
     retrieveAll: parseBoolean(args.retrieveAll),
-    filterDeleted: parseBoolean(args.filterDeleted)
+    filterDeleted: parseBoolean(args.filterDeleted),
+    cli: true,
+    handleOutput
   };
 
-  //logger.debug(JSON.stringify(oaiPmhOptions));
+  logger.debug(JSON.stringify(oaiPmhOptions));
 
   const client = createClient(oaiPmhOptions);
+  const file = parseBoolean(args.file);
+  const {filetype} = args;
 
   if (command.toLowerCase() === 'query') {
     const queryOptions = {
-      metadataPrefix: !args.metadataPrefix || args.metadataPrefix === 'false' ? false : args.metadataPrefix,
-      set: !args.set || args.set === 'false' ? false : args.set,
+      metadataPrefix: parseBoolean(args.metadataPrefix),
+      set: parseBoolean(args.set),
       from: args.from,
       until: args.until,
-      resumptionToken: args.resumptionToken || undefined
+      resumptionToken: {token: args.resumptionToken || undefined}
     };
+
+    if (oaiPmhOptions.retrieveAll) {
+      const emitter = client.listRecords(queryOptions);
+      await new Promise((resolve, reject) => {
+        emitter
+          .on('error', err => reject(err))
+          .on('end', resumptionToken => resumptionToken ? null : resolve());
+      });
+      return;
+    }
 
     const query = generateUrl(queryOptions);
     logger.debug(query);
     const response = await client.verbQuery(query);
-    return handleOutput(response.text());
+    return handleOutput(await response.text(), file, generateFileName('result', filetype));
   }
+
 
   if (command.toLowerCase() === 'sets') {
     const response = await client.verbQuery('ListSets');
-    return handleOutput(await response.text());
+    return handleOutput(await response.text(), file, generateFileName('sets', filetype));
   }
 
   if (command.toLowerCase() === 'formats') {
     const response = await client.verbQuery('ListMetadataFormats');
-    return handleOutput(response.text());
+    return handleOutput(await response.text(), file, generateFileName('formats', filetype));
   }
 
   const response = await client.verbQuery('Identify');
-  return handleOutput(response.text());
+  return handleOutput(await response.text(), file, generateFileName('identify', filetype));
 
-  async function handleOutput(output) {
-    const file = !args.file || args.file === 'false' ? false : args.file;
-    const overWriteFile = parseBoolean(args.overWriteFile);
+  function handleOutput(output, file, fileName = false, checkFolder = true) {
+    const overwrite = parseBoolean(args.overwrite);
+    const folder = './results';
 
     if (file) {
-      if (fs.existsSync(output)) {
-        if (overWriteFile) {
-          await fs.rm(file, {force: true});
-          fs.writeFileSync(file, output);
-          return;
-        }
-
-        throw new Error(`Directory ${file} already exists!`);
-      }
-
-      fs.writeFileSync(file, output);
+      console.log(`Writing to file: ${folder}/${fileName}`); // eslint-disable-line
+      prepareFolder(checkFolder, folder, fileName);
+      fs.writeFileSync(`${folder}/${fileName}`, output);
       return;
     }
     console.log('Output:'); // eslint-disable-line
-    console.log(await output); // eslint-disable-line
+    console.log(output); // eslint-disable-line
+
+    function prepareFolder(checkFolder, folder, fileName) {
+      if (!checkFolder) {
+        return;
+      }
+
+      if (fs.existsSync(folder)) {
+        if (overwrite) {
+          return;
+        }
+
+        if (fs.existsSync(`${folder}/${fileName}`)) {
+          throw new Error('File/files allready exist');
+        }
+
+        return;
+      }
+
+      fs.mkdirSync(folder);
+      return;
+    }
+  }
+
+  function generateFileName(name, type) {
+    return `${name}.${type}`;
   }
 
   function generateUrl(params) {
