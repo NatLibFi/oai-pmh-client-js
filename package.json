@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/oai-pmh-client-js.git"
 	},
 	"license": "MIT",
-	"version": "3.0.11-alpha.1",
+	"version": "3.0.11",
 	"main": "./dist/index.js",
 	"engines": {
 		"node": ">=18"
