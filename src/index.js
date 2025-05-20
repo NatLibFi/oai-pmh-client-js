@@ -73,10 +73,10 @@ export default ({
     iterate(resumptionToken);
     return emitter;
 
-    async function iterate({token}, iteration = 1) {
+    async function iterate({token, urlEncodeResumptionToken = false}, iteration = 1) {
       try {
         if (token) {
-          await processRequest({verb: 'ListRecords', resumptionToken: token}, iteration);
+          await processRequest({verb: 'ListRecords', resumptionToken: token, urlEncodeResumptionToken}, iteration);
           return;
         }
 
@@ -105,10 +105,10 @@ export default ({
 
           if (resumptionToken) {
             if (retrieveAll) {
-              return iterate(formatResumptionToken(resumptionToken), iteration + 1);
+              return iterate(formatResumptionToken(resumptionToken, urlEncodeResumptionToken), iteration + 1);
             }
 
-            return emitter.emit('end', formatResumptionToken(resumptionToken));
+            return emitter.emit('end', formatResumptionToken(resumptionToken, urlEncodeResumptionToken));
           }
 
           return emitter.emit('end');
@@ -117,25 +117,27 @@ export default ({
         throw new Error(`Unexpected response ${response.status}: ${await response.text()}`);
 
         function generateUrl(baseUrl, params) {
-          const {resumptionToken} = params;
-          params.resumptionToken = undefined; // eslint-disable-line functional/immutable-data
+          const {urlEncodeResumptionToken} = params;
+          params.urlEncodeResumptionToken = undefined; // eslint-disable-line functional/immutable-data
           const formatted = Object.entries(params)
             .filter(([, value]) => value)
-            .reduce((acc, [key, value]) => ({...acc, [key]: encodeURIComponent(value)}), {});
+            .reduce((acc, [key, value]) => {
+              if (key !== 'resumptionToken' || urlEncodeResumptionToken) {
+                return {...acc, [key]: encodeURIComponent(value)};
+              }
 
+              return {...acc, [key]: value};
+            }, {});
           const searchParams = new URLSearchParams(formatted);
-          if (resumptionToken !== undefined) {
-            return `${baseUrl}?${searchParams.toString()}&resumptionToken=${resumptionToken}`;
-          }
-
           return `${baseUrl}?${searchParams.toString()}`;
         }
 
-        function formatResumptionToken({_, $: {expirationDate, cursor}}) {
+        function formatResumptionToken({_, $: {expirationDate, cursor}}, urlEncodeResumptionToken) {
           return {
             token: _,
             expirationDate: moment(expirationDate),
-            cursor: Number(cursor)
+            cursor: Number(cursor),
+            urlEncodeResumptionToken: Boolean(urlEncodeResumptionToken)
           };
         }
 

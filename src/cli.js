@@ -41,6 +41,7 @@ async function run() {
       metadataPrefix: {type: 'string', default: 'melinda_marc', describe: 'Oai-pmh record metadata prefix'},
       overwrite: {type: 'string', default: false, describe: 'overwrite file/folder if exists'},
       resumptionToken: {type: 'string', default: undefined, describe: 'Oai-pmh resumption token'},
+      urlEncodeResumptionToken: {type: 'boolean', default: false, describe: 'Url encode Oai-pmh resumption token'},
       retrieveAll: {type: 'string', default: false, describe: 'Get all records from query'},
       set: {type: 'string', default: undefined, describe: 'Oai-pmh record set identifier'},
       until: {type: 'string', default: undefined, describe: 'Records until timestamp'},
@@ -74,6 +75,7 @@ async function run() {
   const filterDeleted = parseBoolean(args.filterDeleted);
   const writeRecordFiles = parseBoolean(args.writeRecordFiles);
   const writeResponseFiles = parseBoolean(args.writeResponseFiles);
+  const urlEncodeResumptionToken = parseBoolean(args.urlEncodeResumptionToken);
 
   logger.debug('Reading oai-pmh url from env');
   const oaiPmhOptions = {
@@ -99,7 +101,7 @@ async function run() {
       set,
       from,
       until,
-      resumptionToken
+      resumptionToken: {token: resumptionToken, urlEncodeResumptionToken}
     };
 
     const emitter = client.listRecords(queryOptions);
@@ -162,11 +164,12 @@ async function run() {
     console.log(formatFileContent(record, metadataFormat)); // eslint-disable-line
   }
 
-  function onEnd({token, expirationDate, cursor}, resolve) {
+  function onEnd({token, expirationDate, cursor, urlEncodeResumptionToken}, resolve) {
     console.log('********** THE END **********'); // eslint-disable-line
     console.log(`resumptionToken: ${token}`); // eslint-disable-line
     console.log(`expirationDate: ${expirationDate}`); // eslint-disable-line
     console.log(`cursor: ${cursor}`); // eslint-disable-line
+    console.log(`Url encode resumptionToken: ${urlEncodeResumptionToken}`); // eslint-disable-line
     console.log('********************'); // eslint-disable-line
     resolve();
   }
