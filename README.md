@@ -30,7 +30,7 @@ client.listRecords({resumptionToken})
   .on('error', err => handleError(err));
 ```
 
-If you need sru responses
+If you need oai-pmh responses
 ```js
 client.listRecords()
   .on('oaiPmhResponse', responseText => processResponse(responseText));
