@@ -130,7 +130,7 @@ async function run() {
 
 
   function onOaiPmhResponse({responseText, iteration}) {
-    console.log(`Record ${iteration}`);
+    console.log(`Record ${iteration}`); // eslint-disable-line
     const folder = './responses';
 
     if (writeResponseFiles) {
@@ -147,7 +147,7 @@ async function run() {
   function onRecord(record) { // eslint-disable-line
     // Comment: console.log(record);
     recordCounter++; //eslint-disable-line
-    console.log(`Record ${recordCounter}`);
+    console.log(`Record ${recordCounter}`); // eslint-disable-line
     const folder = './records';
 
     if (writeRecordFiles) {
@@ -163,16 +163,16 @@ async function run() {
   }
 
   function onEnd({token, expirationDate, cursor}, resolve) {
-    console.log('********** THE END **********');
-    console.log(`resumptionToken: ${token}`);
-    console.log(`expirationDate: ${expirationDate}`);
-    console.log(`cursor: ${cursor}`);
-    console.log('********************');
+    console.log('********** THE END **********'); // eslint-disable-line
+    console.log(`resumptionToken: ${token}`); // eslint-disable-line
+    console.log(`expirationDate: ${expirationDate}`); // eslint-disable-line
+    console.log(`cursor: ${cursor}`); // eslint-disable-line
+    console.log('********************'); // eslint-disable-line
     resolve();
   }
 
   function onError(error, reject) {
-    console.log(`Error: ${error}`);
+    console.log(`Error: ${error}`); // eslint-disable-line
     reject(error);
   }
 
