@@ -1,0 +1,41 @@
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+        <request verb="ListRecords" metadataPrefix="marc21">http://foo.bar</request>
+        <responseDate>2020-06-01T12:08:07.821Z</responseDate>
+        <ListRecords>
+                <record>
+                        <header status="deleted">
+                                <identifier>oai:foo.bar/1</identifier>
+                                <datestamp>2019-07-04T08:26:05.000Z</datestamp>
+                        </header>
+                </record>
+                <record>
+                        <header>
+                                <identifier>oai:foo.bar/2</identifier>
+                                <datestamp>2007-12-31T22:00:00.000Z</datestamp>
+                        </header>
+                        <metadata>
+                                <record>
+                                        <leader>00000 jm 22000001 0000</leader>
+                                        <datafield tag="100" ind1="1">
+                                                <subfield code="a">Mallila, Mauri</subfield>
+                                        </datafield>
+                                        <datafield tag="245" ind2="0">
+                                                <subfield code="a">Mallitietue 1 /</subfield>
+                                        </datafield>
+                                        <datafield tag="336">
+                                                <subfield code="b">prm</subfield>
+                                        </datafield>
+                                        <datafield tag="337">
+                                                <subfield code="b">s</subfield>
+                                        </datafield>
+                                        <datafield tag="338">
+                                                <subfield code="b">sd</subfield>
+                                        </datafield>
+                                </record>
+                        </metadata>
+                </record>
+                <resumptionToken expirationDate="2020-06-01T14:08:21.116Z" cursor="0">foobar</resumptionToken>
+        </ListRecords>
+</OAI-PMH>

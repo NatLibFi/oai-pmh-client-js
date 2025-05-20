@@ -1,0 +1,23 @@
+{
+  "description": "Should return records in marcJson format",
+  "defaultParameters": {
+    "metadataPrefix": "foo",
+    "filterDeleted": true,
+    "metadataFormat": "marcJson"
+  },
+  "method": {
+    "name": "listRecords"
+  },
+  "requests": [
+    {
+      "method": "get",
+      "url": "/?verb=ListRecords&metadataPrefix=foo",
+      "status": 200
+    },
+    {
+      "method": "get",
+      "url": "/?verb=ListRecords&resumptionToken=foobar",
+      "status": 200
+    }
+  ]
+}
