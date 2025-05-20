@@ -36,9 +36,11 @@
 		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src -w test-fixtures --exec 'npm run test:dev'"
 	},
 	"dependencies": {
+		"@babel/runtime": "^7.27.1",
+		"@natlibfi/marc-record": "^9.1.4",
 		"@natlibfi/melinda-backend-commons": "^2.3.1",
+		"@natlibfi/marc-record-serializers": "^10.1.5",
 		"debug": "^4.3.6",
-		"fast-xml-parser": "^4.5.3",
 		"http-status": "^1.7.4",
 		"moment": "^2.30.1",
 		"node-fetch": "^2.7.0",

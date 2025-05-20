@@ -2,10 +2,12 @@ import fetch from 'node-fetch';
 import moment from 'moment';
 import httpStatus from 'http-status';
 import {EventEmitter} from 'events';
-//import {Parser as XMLParser, Builder as XMLBuilder} from 'xml2js';
+import {Parser as XMLParser, Builder as XMLBuilder} from 'xml2js';
 import createDebugLogger from 'debug';
-import {XMLParser, XMLBuilder} from 'fast-xml-parser';
+import {MARCXML} from '@natlibfi/marc-record-serializers';
+import {createLogger} from '@natlibfi/melinda-backend-commons';
 
+const logger = createLogger();
 
 export const errors = {
   badArgument: 'badArgument',
@@ -20,7 +22,8 @@ export const errors = {
 
 export const metadataFormats = {
   object: 'object',
-  string: 'string'
+  string: 'string',
+  marcJson: 'marcJson'
 };
 
 export class OaiPmhError extends Error {
@@ -38,9 +41,7 @@ export default ({
   set: setDefault,
   metadataFormat = metadataFormats.string,
   retrieveAll = true,
-  filterDeleted = false,
-  cli = false,
-  handleOutput = false
+  filterDeleted = false
 }) => {
   const debug = createDebugLogger('@natlibfi/oai-pmh-client');
   const formatMetadata = createFormatter();
@@ -62,7 +63,9 @@ export default ({
 
   function listRecords({resumptionToken = {}, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
     debug(`List records`);
-    debug(`ResumptionToken: ${resumptionToken}`);
+    debug(`ResumptionToken: ${JSON.stringify(resumptionToken)}`);
+    debug(`MetadataPrefix: ${metadataPrefixArg}`);
+    debug(`Set: ${setArg}`);
     const metadataPrefix = metadataPrefixArg || metadataPrefixDefault;
     const set = setArg || setDefault;
     const emitter = new Emitter();
@@ -83,17 +86,14 @@ export default ({
       }
 
       async function processRequest(parameters, iteration) {
-        const url = generateUrl(parameters);
-        debug(`Sending request: ${url.toString()}`);
+        const url = generateUrl(baseUrl, parameters);
+        logger.info(`Sending query request: ${url.toString()}`);
         const response = await doFetch(url);
 
         if (response.status === httpStatus.OK) {
           const responseText = await response.text();
 
-          // For cli to write file
-          if (cli) { // eslint-disable-line functional/no-conditional-statements
-            handleOutput(responseText, true, `result_${iteration}.xml`, iteration === 1);
-          }
+          emitter.emit('oaiPmhResponse', {responseText, iteration});
 
           const {records, error, resumptionToken} = await parsePayload(responseText);
 
@@ -101,8 +101,7 @@ export default ({
             throw new OaiPmhError(error);
           }
 
-
-          emitRecords(records);
+          await emitRecords(records);
 
           if (resumptionToken) {
             if (retrieveAll) {
@@ -117,11 +116,26 @@ export default ({
 
         throw new Error(`Unexpected response ${response.status}: ${await response.text()}`);
 
-        function formatResumptionToken(resumptionToken) {
+        function generateUrl(baseUrl, params) {
+          const {resumptionToken} = params;
+          params.resumptionToken = undefined; // eslint-disable-line functional/immutable-data
+          const formatted = Object.entries(params)
+            .filter(([, value]) => value)
+            .reduce((acc, [key, value]) => ({...acc, [key]: encodeURIComponent(value)}), {});
+
+          const searchParams = new URLSearchParams(formatted);
+          if (resumptionToken !== undefined) {
+            return `${baseUrl}?${searchParams.toString()}&resumptionToken=${resumptionToken}`;
+          }
+
+          return `${baseUrl}?${searchParams.toString()}`;
+        }
+
+        function formatResumptionToken({_, $: {expirationDate, cursor}}) {
           return {
-            token: resumptionToken['#text'],
-            expirationDate: moment(resumptionToken.$.expirationDate),
-            cursor: Number(resumptionToken.$.cursor)
+            token: _,
+            expirationDate: moment(expirationDate),
+            cursor: Number(cursor)
           };
         }
 
@@ -130,34 +144,30 @@ export default ({
           const {error} = payload['OAI-PMH'];
 
           if (error) {
-            return {error: error.$.code};
+            return {error: error[0].$.code};
           }
 
           const {
             'OAI-PMH': {
-              ListRecords: {record: records, resumptionToken}
+              ListRecords: [{record: records, resumptionToken}]
             }
           } = payload;
 
-          return {records, resumptionToken};
+          return {records, resumptionToken: resumptionToken?.[0]};
 
-          function parse(payload) {
+          function parse(responseText) {
             return new Promise((resolve, reject) => {
-              try {
-                const obj = new XMLParser({
-                  ignoreAttributes: false,
-                  attributesGroupName: '$',
-                  attributeNamePrefix: ''
-                }).parse(payload);
+              new XMLParser().parseString(responseText, (err, obj) => {
+                if (err) {
+                  return reject(new Error(`Error parsing XML: ${err}, input: ${responseText}`));
+                }
                 return resolve(obj);
-              } catch (err) {
-                reject(new Error(`Error parsing XML: ${err}, input: ${payload}`));
-              }
+              });
             });
           }
         }
 
-        function emitRecords(records) {
+        async function emitRecords(records) {
           const [record, ...rest] = records;
 
           if (record) {
@@ -172,41 +182,27 @@ export default ({
               return emitRecords(rest);
             }
 
-            emitter.emit('record', {...formatted, metadata: formatMetadata(record.metadata)});
+            const metadata = await formatMetadata(record.metadata[0]);
+            emitter.emit('record', {...formatted, metadata});
             return emitRecords(rest);
           }
 
           function formatRecord() {
             const obj = {
-              identifier: record.header.identifier,
-              datestamp: moment(record.header.datestamp)
+              identifier: record.header[0].identifier[0],
+              datestamp: moment(record.header[0].datestamp[0])
             };
 
-            if (record.header.$?.status) {
+            if (record.header[0].$?.status) {
               return {
                 header: {
-                  ...obj, status: record.header.$.status
+                  ...obj, status: record.header[0].$.status
                 }
               };
             }
 
             return {header: obj};
           }
-        }
-
-        function generateUrl(params) {
-          const {resumptionToken} = params;
-          params.resumptionToken = undefined; // eslint-disable-line functional/immutable-data
-          const formatted = Object.entries(params)
-            .filter(([, value]) => value)
-            .reduce((acc, [key, value]) => ({...acc, [key]: encodeURIComponent(value)}), {});
-
-          const searchParams = new URLSearchParams(formatted);
-          if (resumptionToken !== undefined) {
-            return `${baseUrl}?${searchParams.toString()}&resumptionToken=${resumptionToken}`;
-          }
-
-          return `${baseUrl}?${searchParams.toString()}`;
         }
       }
     }
@@ -240,16 +236,41 @@ export default ({
 
     if (metadataFormat === metadataFormats.string) {
       const builder = new XMLBuilder({
-        processEntities: false,
-        format: true,
-        indentBy: '\t',
-        oneListGroup: true
+        xmldec: {
+          version: '1.0',
+          encoding: 'UTF-8',
+          standalone: false
+        },
+        renderOpts: {
+          pretty: true,
+          indent: '\t'
+        }
       });
-
 
       return metadata => {
         const [[key, value]] = Object.entries(metadata);
-        return builder.build({[key]: value});
+        return builder.buildObject({[key]: value[0]});
+      };
+    }
+
+    if (metadataFormat === metadataFormats.marcJson) {
+      const builder = new XMLBuilder({
+        xmldec: {
+          version: '1.0',
+          encoding: 'UTF-8',
+          standalone: false
+        },
+        renderOpts: {
+          pretty: true,
+          indent: '\t'
+        }
+      });
+
+      return async metadata => {
+        const [[key, value]] = Object.entries(metadata);
+        const xmlString = builder.buildObject({[key]: value[0]});
+        const record = await MARCXML.from(xmlString, {subfieldValues: false});
+        return record;
       };
     }
 

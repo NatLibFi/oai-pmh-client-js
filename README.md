@@ -30,6 +30,13 @@ client.listRecords({resumptionToken})
   .on('error', err => handleError(err));
 ```
 
+If you need sru responses
+```js
+client.listRecords()
+  .on('oaiPmhResponse', responseText => processResponse(responseText));
+```
+
+
 # Configuration
 ## Client creation options
 - **url**: The URL of the OAI-PMH service.
@@ -42,8 +49,11 @@ client.listRecords({resumptionToken})
 - **metadataPrefix**: Override default metadata prefix.
 - **set**: Override default set.
 - **resumptionToken**: Resumption to use to resume the harvesting from.
+## Cli env options
+- **Check example.env**
+
 ## License and copyright
 
-Copyright (c) 2020, 2023-2024 **University Of Helsinki (The National Library Of Finland)**
+Copyright (c) 2020, 2023-2025 **University Of Helsinki (The National Library Of Finland)**
 
 This project's source code is licensed under the terms of **MIT** or any later version.
