@@ -3,3 +3,7 @@ node_modules
 coverage
 dist
 .nyc_output
+.env
+/results
+/records
+/responses

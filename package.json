@@ -14,7 +14,7 @@
 		"url": "git@github.com:natlibfi/oai-pmh-client-js.git"
 	},
 	"license": "MIT",
-	"version": "3.0.11",
+	"version": "3.1.0-alpha.2",
 	"main": "./dist/index.js",
 	"engines": {
 		"node": ">=18"
@@ -36,11 +36,16 @@
 		"watch:test": "cross-env DEBUG=1 NODE_ENV=test nodemon -w src -w test-fixtures --exec 'npm run test:dev'"
 	},
 	"dependencies": {
+		"@babel/runtime": "^7.27.1",
+		"@natlibfi/marc-record": "^9.1.4",
+		"@natlibfi/melinda-backend-commons": "^2.3.7",
+		"@natlibfi/marc-record-serializers": "^10.1.5",
 		"debug": "^4.4.0",
 		"http-status": "^2.1.0",
 		"moment": "^2.30.1",
 		"node-fetch": "^2.7.0",
-		"xml2js": "^0.6.2"
+		"xml2js": "^0.6.2",
+		"yargs": "^17.7.2"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.27.1",

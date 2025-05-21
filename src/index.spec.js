@@ -41,7 +41,8 @@ function callback({getFixture, defaultParameters, method, error}) {
       })
       .on('record', record => {
         try {
-          expect(expectedRecords[recordCount]).to.eql(format());
+          const formatted = format();
+          expect(formatted).to.eql(expectedRecords[recordCount]);
           recordCount++; // eslint-disable-line no-plusplus
         } catch (err) {
           reject(err);

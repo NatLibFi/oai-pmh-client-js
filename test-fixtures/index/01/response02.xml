@@ -9,7 +9,7 @@
                         </header>
                         <metadata>
                           <foo>bar</foo>
-                        </metadata>                        
+                        </metadata>
                 </record>
                 <record>
                         <header>
@@ -19,6 +19,6 @@
                         <metadata>
                           <foo>bar</foo>
                         </metadata>
-                </record>                
+                </record>
         </ListRecords>
 </OAI-PMH>

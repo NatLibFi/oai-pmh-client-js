@@ -1,7 +1,7 @@
 [
   {
-    "header": {      
-      "status": "deleted",        
+    "header": {
+      "status": "deleted",
       "identifier": "oai:foo.bar/1",
       "datestamp": "2019-07-04T08:26:05.000Z"
     }
@@ -11,20 +11,20 @@
       "identifier": "oai:foo.bar/2",
       "datestamp": "2007-12-31T22:00:00.000Z"
     },
-    "metadata":  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<foo>bar</foo>"
+    "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<foo>bar</foo>"
   },
   {
     "header": {
       "identifier": "oai:foo.bar/3",
       "datestamp": "2019-07-04T08:26:05.000Z"
     },
-    "metadata":  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<foo>bar</foo>" 
+    "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<foo>bar</foo>"
   },
   {
     "header": {
       "identifier": "oai:foo.bar/4",
       "datestamp": "2007-12-31T22:00:00.000Z"
     },
-    "metadata":  "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<foo>bar</foo>"   
-  }    
+    "metadata": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n<foo>bar</foo>"
+  }
 ]

@@ -1,7 +1,9 @@
 {
-  "description": "Should retrieve all records",
+  "description": "Should return records in marcJson format",
   "defaultParameters": {
-    "metadataPrefix": "foo"
+    "metadataPrefix": "foo",
+    "filterDeleted": true,
+    "metadataFormat": "marcJson"
   },
   "method": {
     "name": "listRecords"
