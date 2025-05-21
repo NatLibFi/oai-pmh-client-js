@@ -206,7 +206,7 @@ async function run() {
       }
 
       if (fs.existsSync(`${folder}/${fileName}`)) {
-        throw new Error(`${folder}/${fileName} allready exist`);
+        throw new Error(`${folder}/${fileName} already exist`);
       }
 
       return;
