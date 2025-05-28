@@ -73,6 +73,9 @@ async function run() {
   const overwrite = parseBoolean(args.overwrite);
   const retrieveAll = parseBoolean(args.retrieveAll);
   const filterDeleted = parseBoolean(args.filterDeleted);
+  const filterIsbnless = parseBoolean(args.filterIsbnless);
+  const filterComponentRecords = parseBoolean(args.filterComponentRecords);
+  const showRecordsInConsole = parseBoolean(args.showRecordsInConsole);
   const writeRecordFiles = parseBoolean(args.writeRecordFiles);
   const writeResponseFiles = parseBoolean(args.writeResponseFiles);
   const urlEncodeResumptionToken = parseBoolean(args.urlEncodeResumptionToken);
@@ -86,11 +89,34 @@ async function run() {
     set,
     metadataFormat,
     retrieveAll,
-    filterDeleted
+    filterDeleted,
+    filterIsbnless,
+    filterComponentRecords
   };
 
+  logger.debug(`Command: ${command.toLowerCase()}`);
+  logger.debug(`Print records in console: ${showRecordsInConsole}`);
   logger.debug(JSON.stringify(oaiPmhOptions));
   const client = createClient(oaiPmhOptions);
+
+  if (command.toLowerCase() === 'sets') {
+    const response = await client.verbQuery('ListSets');
+    const responseText = await response.text();
+    return onOaiPmhResponse({responseText, iteration: 'sets'});
+  }
+
+  if (command.toLowerCase() === 'formats') {
+    logger.debug('test');
+    const response = await client.verbQuery('ListMetadataFormats');
+    const responseText = await response.text();
+    return onOaiPmhResponse({responseText, iteration: 'formats'});
+  }
+
+  if (command.toLowerCase() === 'identify') {
+    const response = await client.verbQuery('Identify');
+    const responseText = await response.text();
+    return onOaiPmhResponse({responseText, iteration: 'identify'});
+  }
 
   // eslint-disable-next-line functional/no-let
   let recordCounter = 0;
@@ -116,19 +142,7 @@ async function run() {
     return;
   }
 
-
-  if (command.toLowerCase() === 'sets') {
-    const response = await client.verbQuery('ListSets');
-    return onOaiPmhResponse({response: await response.text(), iteration: 'sets'});
-  }
-
-  if (command.toLowerCase() === 'formats') {
-    const response = await client.verbQuery('ListMetadataFormats');
-    return onOaiPmhResponse({response: await response.text(), iteration: 'formats'});
-  }
-
-  const response = await client.verbQuery('Identify');
-  return onOaiPmhResponse({response: await response.text(), iteration: 'identify'});
+  throw new Error('Invalid command');
 
 
   function onOaiPmhResponse({responseText, iteration}) {
@@ -160,8 +174,10 @@ async function run() {
       return fs.writeFileSync(`${folder}/${fileName}`, content);
     }
 
-    console.log('Output:'); // eslint-disable-line
-    console.log(formatFileContent(record, metadataFormat)); // eslint-disable-line
+    if (showRecordsInConsole) {
+      console.log('Output:'); // eslint-disable-line
+      console.log(formatFileContent(record, metadataFormat)); // eslint-disable-line
+    }
   }
 
   function onEnd({token, expirationDate, cursor, urlEncodeResumptionToken}, resolve) {

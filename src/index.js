@@ -41,7 +41,9 @@ export default ({
   set: setDefault,
   metadataFormat = metadataFormats.string,
   retrieveAll = true,
-  filterDeleted = false
+  filterDeleted = false,
+  filterIsbnless = false,
+  filterComponentRecords = false
 }) => {
   const debug = createDebugLogger('@natlibfi/oai-pmh-client');
   const formatMetadata = createFormatter();
@@ -175,18 +177,51 @@ export default ({
           if (record) {
             const formatted = formatRecord();
 
-            if (formatted.header.status === 'deleted') {
-              if (filterDeleted) {
-                return emitRecords(rest);
-              }
+            if (filterDeleted && isDeleted(formatted.header)) {
+              debug('Filtering deleted record');
+              return emitRecords(rest);
+            }
 
-              emitter.emit('record', formatted);
+            // console.log(record);
+            const recordData = record.metadata[0].record[0];
+
+            if (filterComponentRecords && isComponentRecord(recordData)) {
+              debug('Filtering component record');
+              return emitRecords(rest);
+            }
+
+            if (filterIsbnless && !hasIsbn(recordData)) {
+              debug('Filtering isbnless record');
               return emitRecords(rest);
             }
 
             const metadata = await formatMetadata(record.metadata[0]);
             emitter.emit('record', {...formatted, metadata});
             return emitRecords(rest);
+          }
+
+          function isDeleted(header) {
+            return header.status === 'deleted';
+          }
+
+          function hasIsbn(recordData) {
+            const subfields = getFields(recordData, '020');
+            return subfields.some(({$}) => $.code === 'a');
+          }
+
+          function isComponentRecord(recordData) {
+            const f773s = getFields(recordData, '773');
+            const leader = Object.values(recordData.leader[0]);
+            const leaderABD = (/[abd]/u).test(leader[7]);
+            return leaderABD || f773s.length > 0;
+          }
+
+
+          function getFields(recordData, tag) {
+            return Object.values(recordData.datafield)
+              .filter(obj => '$' in obj && 'subfield' in obj)
+              .filter(obj => obj.$.tag === tag)
+              .flatMap(({subfield}) => subfield);
           }
 
           function formatRecord() {
