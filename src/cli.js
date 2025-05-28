@@ -177,6 +177,7 @@ async function run() {
     if (showRecordsInConsole) {
       console.log('Output:'); // eslint-disable-line
       console.log(formatFileContent(record, metadataFormat)); // eslint-disable-line
+      return;
     }
   }
 

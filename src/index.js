@@ -177,13 +177,18 @@ export default ({
           if (record) {
             const formatted = formatRecord();
 
-            if (filterDeleted && isDeleted(formatted.header)) {
-              debug('Filtering deleted record');
+            if (isDeleted(formatted.header)) {
+              if (filterDeleted) {
+                debug('Filtering deleted record');
+                return emitRecords(rest);
+              }
+
+              emitter.emit('record', formatted);
               return emitRecords(rest);
             }
 
-            // console.log(record);
-            const recordData = record.metadata[0].record[0];
+            console.log(record); // eslint-disable-line
+            const [recordData] = record.metadata[0].record;
 
             if (filterComponentRecords && isComponentRecord(recordData)) {
               debug('Filtering component record');
@@ -218,6 +223,10 @@ export default ({
 
 
           function getFields(recordData, tag) {
+            if (recordData.datafield === undefined) {
+              return [];
+            }
+
             return Object.values(recordData.datafield)
               .filter(obj => '$' in obj && 'subfield' in obj)
               .filter(obj => obj.$.tag === tag)

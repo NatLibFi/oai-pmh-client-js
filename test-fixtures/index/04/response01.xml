@@ -1,4 +1,6 @@
-<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
         <request verb="ListRecords" metadataPrefix="marc21">http://foo.bar</request>
         <responseDate>2020-06-01T12:08:07.821Z</responseDate>
         <ListRecords>
@@ -14,9 +16,11 @@
                                 <datestamp>2007-12-31T22:00:00.000Z</datestamp>
                         </header>
                         <metadata>
-                          <foo>bar</foo>
+                                <record>
+                                        <foo>bar</foo>
+                                </record>
                         </metadata>
-                </record>                
+                </record>
                 <resumptionToken expirationDate="2020-06-01T14:08:21.116Z" cursor="0">foobar</resumptionToken>
         </ListRecords>
 </OAI-PMH>
