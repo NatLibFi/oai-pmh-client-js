@@ -1,4 +1,3 @@
-import fetch from 'node-fetch';
 import moment from 'moment';
 import httpStatus from 'http-status';
 import {EventEmitter} from 'events';
@@ -29,10 +28,11 @@ export const metadataFormats = {
 export class OaiPmhError extends Error {
   constructor(code, ...args) {
     super(args);
-    this.code = code; // eslint-disable-line functional/no-this-expressions
+    this.code = code;
   }
 }
 
+// eslint-disable-next-line max-lines-per-function
 export default ({
   url: baseUrl,
   apiKey = false,
@@ -63,6 +63,7 @@ export default ({
     return response;
   }
 
+  // eslint-disable-next-line max-lines-per-function
   function listRecords({resumptionToken = {}, metadataPrefix: metadataPrefixArg, set: setArg} = {resumptionToken: {}}) {
     debug(`List records`);
     debug(`ResumptionToken: ${JSON.stringify(resumptionToken)}`);
@@ -75,6 +76,7 @@ export default ({
     iterate(resumptionToken);
     return emitter;
 
+    // eslint-disable-next-line max-lines-per-function
     async function iterate({token, urlEncodeResumptionToken = false}, iteration = 1) {
       try {
         if (token) {
@@ -87,6 +89,7 @@ export default ({
         return emitter.emit('error', err);
       }
 
+      // eslint-disable-next-line max-lines-per-function
       async function processRequest(parameters, iteration) {
         const url = generateUrl(baseUrl, parameters);
         logger.info(`Sending query request: ${url.toString()}`);
@@ -99,7 +102,7 @@ export default ({
 
           const {records, error, resumptionToken} = await parsePayload(responseText);
 
-          if (error) { // eslint-disable-line functional/no-conditional-statements
+          if (error) {
             throw new OaiPmhError(error);
           }
 
@@ -120,7 +123,7 @@ export default ({
 
         function generateUrl(baseUrl, params) {
           const {urlEncodeResumptionToken} = params;
-          params.urlEncodeResumptionToken = undefined; // eslint-disable-line functional/immutable-data
+          params.urlEncodeResumptionToken = undefined;
           const formatted = Object.entries(params)
             .filter(([, value]) => value)
             .reduce((acc, [key, value]) => {
@@ -257,10 +260,9 @@ export default ({
   async function doFetch(url) {
     if (apiKeyHeader && apiKey) {
       const headers = {};
-      headers[apiKeyHeader] = apiKey; // eslint-disable-line functional/immutable-data
-      headers.Accept = '*/*'; // eslint-disable-line functional/immutable-data
-      headers['User-Agent'] = 'Melinda-oai-pmh-client'; // eslint-disable-line functional/immutable-data
-      debug(`Request headers: ${JSON.stringify(headers)}`);
+      headers[apiKeyHeader] = apiKey;
+      headers.Accept = '*/*';
+      headers['User-Agent'] = 'Melinda-oai-pmh-client';
       const response = await fetch(url, {
         headers
       });

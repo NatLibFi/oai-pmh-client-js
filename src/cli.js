@@ -6,6 +6,7 @@ import createClient from './index.js';
 
 run();
 
+// eslint-disable-next-line max-lines-per-function
 async function run() {
   const logger = createLogger();
 
@@ -118,7 +119,6 @@ async function run() {
     return onOaiPmhResponse({responseText, iteration: 'identify'});
   }
 
-  // eslint-disable-next-line functional/no-let
   let recordCounter = 0;
 
   if (command.toLowerCase() === 'query') {
@@ -160,7 +160,7 @@ async function run() {
     console.log(response); // eslint-disable-line
   }
 
-  function onRecord(record) { // eslint-disable-line
+  function onRecord(record) {
     // Comment: console.log(record);
     recordCounter++; //eslint-disable-line
     console.log(`Record ${recordCounter}`); // eslint-disable-line

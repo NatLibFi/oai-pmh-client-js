@@ -1,12 +1,14 @@
-import createClient, {OaiPmhError} from '.';
-import {expect} from 'chai';
+import createClient, {OaiPmhError} from './index.js';
+import assert from 'node:assert';
+//import {describe, it} from 'node:test';
+//import {beforeEach} from 'node:test';
 import {READERS} from '@natlibfi/fixura';
-import generateTests from '@natlibfi/fixugen-http-client';
+import {default as generateTests} from '@natlibfi/fixugen-http-client';
 
 
 generateTests({
   callback,
-  path: [__dirname, '..', 'test-fixtures'],
+  path: [import.meta.dirname, '..', 'test-fixtures'],
   fixura: {
     reader: READERS.JSON
   }
@@ -16,7 +18,7 @@ function callback({getFixture, defaultParameters, method, error}) {
   const expectedRecords = getFixture('expected-records.json');
   const expectedToken = getFixture('expected-token.json');
 
-  let recordCount = 0; // eslint-disable-line functional/no-let
+  let recordCount = 0;
   const client = createClient({...defaultParameters, url: 'http://foo.bar'});
 
   return new Promise((resolve, reject) => {
@@ -25,12 +27,15 @@ function callback({getFixture, defaultParameters, method, error}) {
         try {
           if (error) {
             if (typeof error === 'object' && error.code) {
-              expect(err).to.be.an.instanceOf(OaiPmhError);
-              expect(err.code).to.equal(error.code);
+              assert(true, err instanceof OaiPmhError);
+              assert.equal(err.code, error.code)
+              //expect(err).to.be.an.instanceOf(OaiPmhError);
+              //expect(err.code).to.equal(error.code);
               return resolve();
             }
 
-            expect(err.message).to.match(new RegExp(error, 'u'));
+            assert.match(err.message, new RegExp(error, 'u'));
+            //expect(err.message).to.match(new RegExp(error, 'u'));
             return resolve();
           }
 
@@ -42,7 +47,8 @@ function callback({getFixture, defaultParameters, method, error}) {
       .on('record', record => {
         try {
           const formatted = format();
-          expect(formatted).to.eql(expectedRecords[recordCount]);
+          assert.deepEqual(formatted,expectedRecords[recordCount]);
+          //expect(formatted).to.eql(expectedRecords[recordCount]);
           recordCount++; // eslint-disable-line no-plusplus
         } catch (err) {
           reject(err);
@@ -61,11 +67,12 @@ function callback({getFixture, defaultParameters, method, error}) {
       .on('end', resumptionToken => {
         try {
           if (expectedToken) {
-            expect(expectedToken).to.eql(format(resumptionToken));
+            assert.deepEqual(format(resumptionToken), expectedToken);
+            //expect(expectedToken).to.eql(format(resumptionToken));
             return resolve();
           }
 
-          if (resumptionToken) { // eslint-disable-line functional/no-conditional-statements
+          if (resumptionToken) {
             throw new Error(`Unexpected resumption token: ${resumptionToken}`);
           }
 
