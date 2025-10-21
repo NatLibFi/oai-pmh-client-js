@@ -17,7 +17,7 @@ async function run() {
 
   const args = yargs(process.argv.slice(2))
     .scriptName('oai-pmh-cli')
-    .wrap(yargs.terminalWidth())
+    //.wrap(yargs.terminalWidth())
     .epilog('Copyright (C) 2025 University Of Helsinki (The National Library Of Finland)')
     .usage('$0 <command> [options] (env variable info in Example.env)')
     .showHelpOnFail(true)
