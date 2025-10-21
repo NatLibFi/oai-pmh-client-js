@@ -17,7 +17,22 @@
                         </header>
                         <metadata>
                                 <record>
-                                        <foo>bar</foo>
+                                        <leader>00000 jm 22000001 0000</leader>
+                                        <datafield tag="100" ind1="1">
+                                                <subfield code="a">Mallila, Mauri</subfield>
+                                        </datafield>
+                                        <datafield tag="245" ind2="0">
+                                                <subfield code="a">Mallitietue 1 /</subfield>
+                                        </datafield>
+                                        <datafield tag="336">
+                                                <subfield code="b">prm</subfield>
+                                        </datafield>
+                                        <datafield tag="337">
+                                                <subfield code="b">s</subfield>
+                                        </datafield>
+                                        <datafield tag="338">
+                                                <subfield code="b">sd</subfield>
+                                        </datafield>
                                 </record>
                         </metadata>
                 </record>

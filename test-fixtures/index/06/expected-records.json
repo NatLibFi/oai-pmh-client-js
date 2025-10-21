@@ -1,0 +1,140 @@
+[
+  {
+    "header": {
+      "identifier": "oai:foo.bar/3",
+      "datestamp": "2019-07-04T08:26:05.000Z"
+    },
+    "metadata": {
+      "_validationOptions": {
+        "subfieldValues": false
+      },
+      "fields": [
+        {
+          "ind1": "1",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "a",
+              "value": "Mallila, Mauri"
+            }
+          ],
+          "tag": "100"
+        },
+        {
+          "ind1": " ",
+          "ind2": "0",
+          "subfields": [
+            {
+              "code": "a",
+              "value": "Mallitietue 2 /"
+            }
+          ],
+          "tag": "245"
+        },
+        {
+          "ind1": " ",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "b",
+              "value": "prm"
+            }
+          ],
+          "tag": "336"
+        },
+        {
+          "ind1": " ",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "b",
+              "value": "s"
+            }
+          ],
+          "tag": "337"
+        },
+        {
+          "ind1": " ",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "b",
+              "value": "sd"
+            }
+          ],
+          "tag": "338"
+        }
+      ],
+      "leader": "00000 jm 22000001 0000"
+    }
+  },
+  {
+    "header": {
+      "identifier": "oai:foo.bar/4",
+      "datestamp": "2007-12-31T22:00:00.000Z"
+    },
+    "metadata": {
+      "_validationOptions": {
+        "subfieldValues": false
+      },
+      "fields": [
+        {
+          "ind1": "1",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "a",
+              "value": "Mallila, Mauri"
+            }
+          ],
+          "tag": "100"
+        },
+        {
+          "ind1": " ",
+          "ind2": "0",
+          "subfields": [
+            {
+              "code": "a",
+              "value": "Mallitietue 3 /"
+            }
+          ],
+          "tag": "245"
+        },
+        {
+          "ind1": " ",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "b",
+              "value": "prm"
+            }
+          ],
+          "tag": "336"
+        },
+        {
+          "ind1": " ",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "b",
+              "value": "s"
+            }
+          ],
+          "tag": "337"
+        },
+        {
+          "ind1": " ",
+          "ind2": " ",
+          "subfields": [
+            {
+              "code": "b",
+              "value": "sd"
+            }
+          ],
+          "tag": "338"
+        }
+      ],
+      "leader": "00000 jm 22000001 0000"
+    }
+  }
+]
