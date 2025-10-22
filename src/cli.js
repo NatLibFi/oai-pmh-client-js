@@ -17,7 +17,7 @@ async function run() {
     .on('unhandledRejection', handleInterrupt)
     .on('uncaughtException', handleInterrupt);
 
-  const args = yargs(process.argv.slice(2))
+  const args = yargs(hideBin(process.argv))
     .scriptName('oai-pmh-cli')
     .wrap(yargsInstance.terminalWidth())
     .epilog('Copyright (C) 2025 University Of Helsinki (The National Library Of Finland)')
@@ -33,8 +33,10 @@ async function run() {
       ['$ node $0/dist/cli.js query --metadataFormat jsonMarc --writeRecordFiles true']
     ])
     .version()
+    // read env with prefix OAI_PMH
     .env('OAI_PMH')
     .positional('command', {type: 'string', describe: 'oai-pmh command type'})
+    // command line args are preferred to env
     .options({
       apiKey: {type: 'string', default: undefined, describe: 'Api key for Oai-pmh header'},
       apiKeyHeader: {type: 'string', default: undefined, describe: 'Header name for Oai-pmh api key'},
