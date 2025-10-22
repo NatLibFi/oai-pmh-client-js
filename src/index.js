@@ -190,7 +190,7 @@ export default ({
               return emitRecords(rest);
             }
 
-            console.log(record); // eslint-disable-line
+            //console.log(record); // eslint-disable-line
             const [recordData] = record.metadata[0].record;
 
             if (filterComponentRecords && isComponentRecord(recordData)) {

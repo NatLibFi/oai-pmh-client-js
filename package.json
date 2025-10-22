@@ -29,7 +29,8 @@
 		"lint": "eslint ./src",
 		"lint:dev": "eslint --fix ./src",
 		"test:base": "node --test --test-force-exit --experimental-test-coverage --test-reporter=spec './src/**/*.test.js'",
-		"dev:test": "cross-env DEBUG=@natlibfi/* NODE_ENV=test node --watch --test --experimental-test-coverage --test-reporter=spec './src/**/*.test.js'"
+		"dev:test": "cross-env DEBUG=@natlibfi/* NODE_ENV=test node --watch --test --experimental-test-coverage --test-reporter=spec './src/**/*.test.js'",
+		"test": "npm run lint && npm run test:base"
 	},
 	"dependencies": {
 		"@natlibfi/marc-record": "^10.0.0-alpha.1",
@@ -46,6 +47,6 @@
 		"@natlibfi/fixugen-http-client": "^4.0.0-alpha.1",
 		"@natlibfi/fixura": "^4.0.0-alpha.13",
 		"cross-env": "^7.0.3",
-		"eslint": "^8.57.1"
+		"eslint": "^9.38.0"
 	}
 }
