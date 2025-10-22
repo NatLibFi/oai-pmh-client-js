@@ -1,5 +1,6 @@
 import fs from 'fs';
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import {createLogger, handleInterrupt} from '@natlibfi/melinda-backend-commons';
 
 import createClient from './index.js';
@@ -9,6 +10,7 @@ run();
 // eslint-disable-next-line max-lines-per-function
 async function run() {
   const logger = createLogger();
+  const yargsInstance = yargs(hideBin(process.argv));
 
   process
     .on('SIGINT', handleInterrupt)
@@ -17,7 +19,7 @@ async function run() {
 
   const args = yargs(process.argv.slice(2))
     .scriptName('oai-pmh-cli')
-    //.wrap(yargs.terminalWidth())
+    .wrap(yargsInstance.terminalWidth())
     .epilog('Copyright (C) 2025 University Of Helsinki (The National Library Of Finland)')
     .usage('$0 <command> [options] (env variable info in Example.env)')
     .showHelpOnFail(true)
