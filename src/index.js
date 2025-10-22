@@ -46,6 +46,7 @@ export default ({
   filterComponentRecords = false
 }) => {
   const debug = createDebugLogger('@natlibfi/oai-pmh-client');
+  const debugData = debug.extend('data');
   const formatMetadata = createFormatter();
 
   class Emitter extends EventEmitter {
@@ -60,6 +61,7 @@ export default ({
     const url = `${baseUrl}?verb=${verb}`;
     debug(`Sending request: ${url.toString()}`);
     const response = await doFetch(url);
+    debugData(response);
     return response;
   }
 
@@ -190,7 +192,7 @@ export default ({
               return emitRecords(rest);
             }
 
-            //console.log(record); // eslint-disable-line
+            console.log(record); // eslint-disable-line
             const [recordData] = record.metadata[0].record;
 
             if (filterComponentRecords && isComponentRecord(recordData)) {

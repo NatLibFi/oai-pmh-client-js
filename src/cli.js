@@ -217,12 +217,13 @@ async function run() {
   }
 
   function prepareFolder(folder, fileName) {
+    console.log(`Overwrite: ${overwrite}`); //eslint-disable-line
     if (fs.existsSync(folder)) {
       if (overwrite) {
         return;
       }
 
-      if (fs.existsSync(`${folder}/${fileName}`)) {
+      if (!overwrite && fs.existsSync(`${folder}/${fileName}`)) {
         throw new Error(`${folder}/${fileName} already exist`);
       }
 
