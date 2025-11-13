@@ -12,6 +12,7 @@ jobs:
   build-node-versions:
     name: Node version matrix
     runs-on: ubuntu-latest
+    container: node:22
 
     strategy:
       matrix:
@@ -37,6 +38,7 @@ jobs:
   license-scan:
     name: License compliance check
     runs-on: ubuntu-latest
+    container: node:22
 
     steps:
       - uses: actions/checkout@v5
@@ -47,6 +49,7 @@ jobs:
   njsscan:
     name: Njsscan check
     runs-on: ubuntu-latest
+    container: node:22
 
     steps:
     - name: Checkout the code
@@ -59,6 +62,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
+    container: node:22
     needs: [build-node-versions, njsscan]
     if: contains(github.ref, 'refs/tags/')
 
