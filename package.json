@@ -32,9 +32,9 @@
 		"test": "npm run lint && npm run test:base"
 	},
 	"dependencies": {
-		"@natlibfi/marc-record": "next",
-		"@natlibfi/marc-record-serializers": "next",
-		"@natlibfi/melinda-backend-commons": "next",
+		"@natlibfi/marc-record": "^10.0.0",
+		"@natlibfi/marc-record-serializers": "^11.0.0.",
+		"@natlibfi/melinda-backend-commons": "3.0.0",
 		"debug": "^4.4.3",
 		"esbuild": "^0.25.11",
 		"http-status": "^2.1.0",
