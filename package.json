@@ -45,7 +45,7 @@
 	"devDependencies": {
 		"@natlibfi/fixugen-http-client": "^4.0.0",
 		"@natlibfi/fixura": "^4.0.0",
-		"cross-env": "^7.0.3",
+		"cross-env": "^10.1.0",
 		"eslint": "^9.39.1"
 	}
 }
