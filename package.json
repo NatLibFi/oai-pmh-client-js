@@ -33,19 +33,19 @@
 	},
 	"dependencies": {
 		"@natlibfi/marc-record": "^10.0.0",
-		"@natlibfi/marc-record-serializers": "^11.0.0.",
-		"@natlibfi/melinda-backend-commons": "3.0.0",
+		"@natlibfi/marc-record-serializers": "^11.0.0",
+		"@natlibfi/melinda-backend-commons": "^3.0.0",
 		"debug": "^4.4.3",
-		"esbuild": "^0.25.11",
+		"esbuild": "^0.27.0",
 		"http-status": "^2.1.0",
 		"moment": "^2.30.1",
 		"xml2js": "^0.6.2",
 		"yargs": "^17.7.2"
 	},
 	"devDependencies": {
-		"@natlibfi/fixugen-http-client": "next",
-		"@natlibfi/fixura": "next",
+		"@natlibfi/fixugen-http-client": "^4.0.0",
+		"@natlibfi/fixura": "^4.0.0",
 		"cross-env": "^7.0.3",
-		"eslint": "^9.38.0"
+		"eslint": "^9.39.1"
 	}
 }
