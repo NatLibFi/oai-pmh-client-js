@@ -6,8 +6,10 @@ import createClient from './index.js';
 
 run();
 
+// eslint-disable-next-line max-lines-per-function
 async function run() {
   const logger = createLogger();
+  const yargsInstance = yargs(process.argv.slice(2));
 
   process
     .on('SIGINT', handleInterrupt)
@@ -16,7 +18,7 @@ async function run() {
 
   const args = yargs(process.argv.slice(2))
     .scriptName('oai-pmh-cli')
-    .wrap(yargs.terminalWidth())
+    .wrap(yargsInstance.terminalWidth())
     .epilog('Copyright (C) 2025 University Of Helsinki (The National Library Of Finland)')
     .usage('$0 <command> [options] (env variable info in Example.env)')
     .showHelpOnFail(true)
@@ -30,8 +32,10 @@ async function run() {
       ['$ node $0/dist/cli.js query --metadataFormat jsonMarc --writeRecordFiles true']
     ])
     .version()
+    // read env with prefix OAI_PMH
     .env('OAI_PMH')
     .positional('command', {type: 'string', describe: 'oai-pmh command type'})
+    // command line args are preferred to env
     .options({
       apiKey: {type: 'string', default: undefined, describe: 'Api key for Oai-pmh header'},
       apiKeyHeader: {type: 'string', default: undefined, describe: 'Header name for Oai-pmh api key'},
@@ -118,7 +122,6 @@ async function run() {
     return onOaiPmhResponse({responseText, iteration: 'identify'});
   }
 
-  // eslint-disable-next-line functional/no-let
   let recordCounter = 0;
 
   if (command.toLowerCase() === 'query') {
@@ -160,7 +163,7 @@ async function run() {
     console.log(response); // eslint-disable-line
   }
 
-  function onRecord(record) { // eslint-disable-line
+  function onRecord(record) {
     // Comment: console.log(record);
     recordCounter++; //eslint-disable-line
     console.log(`Record ${recordCounter}`); // eslint-disable-line
@@ -217,12 +220,13 @@ async function run() {
   }
 
   function prepareFolder(folder, fileName) {
+    console.log(`Overwrite: ${overwrite}`); //eslint-disable-line
     if (fs.existsSync(folder)) {
       if (overwrite) {
         return;
       }
 
-      if (fs.existsSync(`${folder}/${fileName}`)) {
+      if (!overwrite && fs.existsSync(`${folder}/${fileName}`)) {
         throw new Error(`${folder}/${fileName} already exist`);
       }
 
