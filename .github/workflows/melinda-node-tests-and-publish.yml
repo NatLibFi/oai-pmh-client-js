@@ -12,7 +12,7 @@ jobs:
   build-node-versions:
     name: Node version matrix
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     strategy:
       matrix:
@@ -38,7 +38,7 @@ jobs:
   license-scan:
     name: License compliance check
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     steps:
       - uses: actions/checkout@v6
@@ -49,7 +49,7 @@ jobs:
   njsscan:
     name: Njsscan check
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     steps:
     - name: Checkout the code
@@ -62,20 +62,12 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
     needs: [build-node-versions, njsscan]
     if: contains(github.ref, 'refs/tags/')
 
     steps:
       - uses: actions/checkout@v6
-      # Setup .npmrc file to publish to npm
-      - name: Prepare node for publish
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22.x'
-          registry-url: 'https://registry.npmjs.org'
-      - name: Update npm
-        run: npm install -g npm@latest
       - name: Clean install
         run: npm ci
       # Publish stable release with --tag latest
