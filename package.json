@@ -10,7 +10,7 @@
 		"url": "https://github.com/NatLibFi/oai-pmh-client-js/issues"
 	},
 	"repository": {
-		"url": "https://github.com/NatLibFi/oai-pmh-client-js"
+		"url": "git+https://github.com/NatLibFi/oai-pmh-client-js.git"
 	},
 	"license": "MIT",
 	"version": "4.0.0",
