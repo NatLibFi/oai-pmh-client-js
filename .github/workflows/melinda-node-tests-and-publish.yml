@@ -12,7 +12,7 @@ jobs:
   build-node-versions:
     name: Node version matrix
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     strategy:
       matrix:
@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout the code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6
       with:
@@ -38,10 +38,10 @@ jobs:
   license-scan:
     name: License compliance check
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: mikaelvesavuori/license-compliance-action@v1.0.3
         with:
           exclude_pattern: /^@natlibfi/
@@ -49,11 +49,11 @@ jobs:
   njsscan:
     name: Njsscan check
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
 
     steps:
     - name: Checkout the code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: nodejsscan scan
       id: njsscan
       uses: ajinabraham/njsscan-action@master
@@ -62,20 +62,12 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    container: node:22
+    container: node:24
     needs: [build-node-versions, njsscan]
     if: contains(github.ref, 'refs/tags/')
 
     steps:
-      - uses: actions/checkout@v5
-      # Setup .npmrc file to publish to npm
-      - name: Prepare node for publish
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22.x'
-          registry-url: 'https://registry.npmjs.org'
-      - name: Update npm
-        run: npm install -g npm@latest
+      - uses: actions/checkout@v6
       - name: Clean install
         run: npm ci
       # Publish stable release with --tag latest
